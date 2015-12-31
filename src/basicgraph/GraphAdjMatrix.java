@@ -107,8 +107,35 @@ public class GraphAdjMatrix extends Graph {
 	 * @param v the index of vertex.
 	 * @return List<Integer> a list of indices of vertices.  
 	 */	
-	public List<Integer> getDistance2(int v) {
-		return null;
+	 public List<Integer> getDistance2(int v) {
+		 
+		 List<Integer> twoHopPaths = new ArrayList<Integer>();
+		 
+		 List<Integer> outNeighbors1;
+		 List<Integer> outNeighbors2;
+		 
+		 if (getNeighbors(v) != null){
+			 
+			 outNeighbors1 = getNeighbors(v);
+			 
+			 // iterate through the vertex's immediate neighbors to get THEIR
+			 // immediate neighbors
+			 // then add all of 2nd immediate neighbors to the return list
+			 for (int i = 0; i < outNeighbors1.size(); i++) {
+				 
+				 if (getNeighbors(outNeighbors1.get(i)) != null) {
+					 
+					 outNeighbors2 = getNeighbors(outNeighbors1.get(i));
+					 
+					 for (int j = 0; j < outNeighbors2.size(); j++) {
+					
+						 twoHopPaths.add(outNeighbors2.get(j));
+					 } 
+				 }
+			 }
+		 }
+		 
+		 return twoHopPaths;
 	}
 	
 	/**
