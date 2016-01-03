@@ -23,7 +23,6 @@ public class MapGraph {
 	private int numEdges;
 	
 	private HashMap<Double,HashMap<Double,MapIntersection>> graph;
-	private HashMap<Double,MapIntersection> nodes;
 	
 	/** 
 	 * Create a new empty MapGraph 
@@ -33,7 +32,6 @@ public class MapGraph {
 		numVertices = 0;
 		numEdges = 0;
 		graph = new HashMap<Double,HashMap<Double,MapIntersection>>(4);
-		nodes = new HashMap<Double,MapIntersection>(4);
 	}
 	
 	/**
@@ -88,6 +86,17 @@ public class MapGraph {
 			
 			MapIntersection node = new MapIntersection(location.x, location.y);
 			
+			HashMap<Double,MapIntersection> nodes;
+			
+			if ( graph.get(location.x) != null ) {
+				
+				nodes = graph.get(location.x;
+			}
+			else {
+				
+				nodes = new HashMap<Double,MapIntersection>(4);
+			}
+			
 			nodes.put((Double)location.y, node);
 			graph.put((Double)location.x, nodes);
 			
@@ -111,8 +120,8 @@ public class MapGraph {
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
 
-		//TODO: Implement this method in WEEK 2
-		
+		graph.
+		numEdges++;
 	}
 	
 
