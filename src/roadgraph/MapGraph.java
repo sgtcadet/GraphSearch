@@ -1,6 +1,7 @@
 package roadgraph;
 
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -187,15 +188,86 @@ public class MapGraph {
 	 */
 	public List<GeographicPoint> bfs(GeographicPoint start, 
 			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
-	{
-		// TODO: Implement this method in WEEK 2
+	{	
+		// It is a bit confusing to call this method "bfs" because breadth-first
+		// search is the name of a search strategy, not the name of the thing
+		// we want to do. I suggest renaming the method to something like
+		// "getShortestPath", which could implement a helper method called "bfs"
+		// if that's the search strategy we want to use.
 		
-		// Hook for visualization.  See writeup.
 		//nodeSearched.accept(next.getLocation());
+		
+		// if the start or goal do not exist in the graph, return null
+		if ( (graph.get(start.x) == null) ||
+				  (graph.get(start.x).get(start.y) == null) ) {
+			return null;
+		}
+		else if ( (graph.get(goal.x) == null) ||
+				  (graph.get(goal.x).get(goal.y) == null) ) {
+			return null;
+		}
+		
+		// assign the start and goal nodes
+		MapIntersection startNode = graph.get(start.x).get(start.y);
+		MapIntersection goalNode = graph.get(goal.x).get(goal.y);
 
+		// hold nodes to process, nodes processed, processed node parents,
+		// current node, current neighbors, and shortest path
+		ArrayDeque<MapIntersection> toProcess = new ArrayDeque<MapIntersection>();
+		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
+		HashMap<MapIntersection,MapIntersection> parents =
+				new HashMap<MapIntersection,MapIntersection>(numVertices*2);
+		MapIntersection currentNode;
+		List<MapIntersection> currentNeighbors;
+		
+		toProcess.add(startNode);
+		visited.add(startNode);
+		
+		// keep track of parents while doing BFS
+		while (!toProcess.isEmpty()) {
+			
+			currentNode = toProcess.remove();
+			
+			if (currentNode.equals(goalNode)) {
+				return calculateShortestPath(startNode, goalNode, parents);
+			}
+			
+			if (currentNode.neighbors != null) {
+				
+				currentNeighbors = currentNode.neighbors;
+				for (MapIntersection neighbor : currentNeighbors) {
+					
+					if (!visited.contains(neighbor)){
+					
+						visited.add(neighbor);
+						toProcess.add(neighbor);
+						parents.put(neighbor, currentNode);
+					}
+				}
+			}
+		}
+		/*
+		Initialize: queue, visited HashSet and parent HashMap
+			Enqueue S onto the queue and add to visited
+			while queue is not empty:
+				dequeue node curr from front of queue
+				if curr == G, return parent map
+				for each of curr’s neighbors, n, not in visited set:
+					add n to visited set
+					add curr as n’s parent in parent map
+					enqueue n onto the queue
+			// If we get here then there’s no path
+		*/
 		return null;
 	}
 	
+	private List<GeographicPoint> calculateShortestPath(MapIntersection startNode,
+			MapIntersection goalNode, HashMap<MapIntersection,MapIntersection> parents) {
+		
+		List<GeographicPoint> shortestPath = new
+		
+		return shortestPath;
+	}
 
 	/** Find the path from start to goal using Dijkstra's algorithm
 	 * 
