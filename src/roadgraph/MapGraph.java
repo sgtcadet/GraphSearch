@@ -160,6 +160,7 @@ public class MapGraph {
 		}
 		
 		fromNode.neighbors.add(toNode);
+		numEdges++;
 	}
 	
 
