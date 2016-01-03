@@ -1,13 +1,7 @@
-/**
- * @author UCSD MOOC development team and YOU
- * 
- * A class which reprsents a graph of geographic locations
- * Nodes in the graph are intersections between 
- *
- */
 package roadgraph;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -16,22 +10,30 @@ import geography.GeographicPoint;
 import util.GraphLoader;
 
 /**
- * @author UCSD MOOC development team and YOU
+ * @author UCSD MOOC development team
+ * @author ryanwilliamconnor
  * 
  * A class which represents a graph of geographic locations
- * Nodes in the graph are intersections between 
+ * Nodes in the graph are intersections between roads
  *
  */
 public class MapGraph {
-	//TODO: Add your member variables here in WEEK 2
 	
+	private int numVertices;
+	private int numEdges;
+	
+	private HashMap<Double,HashMap<Double,MapIntersection>> graph;
+	private HashMap<Double,MapIntersection> nodes;
 	
 	/** 
 	 * Create a new empty MapGraph 
 	 */
 	public MapGraph()
 	{
-		// TODO: Implement in this constructor in WEEK 2
+		numVertices = 0;
+		numEdges = 0;
+		graph = new HashMap<Double,HashMap<Double,MapIntersection>>(4);
+		nodes = new HashMap<Double,MapIntersection>(4);
 	}
 	
 	/**
@@ -40,8 +42,7 @@ public class MapGraph {
 	 */
 	public int getNumVertices()
 	{
-		//TODO: Implement this method in WEEK 2
-		return 0;
+		return numVertices;
 	}
 	
 	/**
@@ -60,8 +61,7 @@ public class MapGraph {
 	 */
 	public int getNumEdges()
 	{
-		//TODO: Implement this method in WEEK 2
-		return 0;
+		return numEdges;
 	}
 
 	
@@ -75,8 +75,25 @@ public class MapGraph {
 	 */
 	public boolean addVertex(GeographicPoint location)
 	{
-		// TODO: Implement this method in WEEK 2
-		return false;
+		if (location == null){
+			
+			return false;
+		}
+		else if ( (graph.get(location.x) != null) &&
+				  (graph.get(location.x).get(location.y) != null) ) {
+
+			return false;
+		}
+		else {
+			
+			MapIntersection node = new MapIntersection(location.x, location.y);
+			
+			nodes.put((Double)location.y, node);
+			graph.put((Double)location.x, nodes);
+			
+			numVertices++;
+			return true;
+		}
 	}
 	
 	/**
