@@ -1,6 +1,7 @@
 package roadgraph;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -90,7 +91,7 @@ public class MapGraph {
 			
 			if ( graph.get(location.x) != null ) {
 				
-				nodes = graph.get(location.x;
+				nodes = graph.get(location.x);
 			}
 			else {
 				
@@ -120,8 +121,29 @@ public class MapGraph {
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
 
-		graph.
-		numEdges++;
+		if ( (graph.get(from.x) == null) ||
+				  (graph.get(from.x).get(from.y) == null) ) {
+			throw new IllegalArgumentException(from.toString());
+		} else if ( (graph.get(to.x) == null) ||
+				  (graph.get(to.x).get(to.y) == null) ) {		
+			throw new IllegalArgumentException(to.toString());
+		} else if (roadName == null) {
+			throw new IllegalArgumentException(roadName);
+		} else if (roadType == null) {
+			throw new IllegalArgumentException(roadType);
+		} else if (length < 0) {
+			throw new IllegalArgumentException(String.valueOf(length));
+		}
+		
+		MapIntersection fromNode = graph.get(from.x).get(from.y);
+		MapIntersection toNode = graph.get(to.x).get(to.y);
+		
+		// if "from"'s adjacency list has not been created, create it.
+		if (fromNode.neighbors == null) {
+			fromNode.neighbors = new ArrayList<MapIntersection>();
+		}
+		
+		fromNode.neighbors.add(toNode);
 	}
 	
 
