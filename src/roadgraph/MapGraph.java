@@ -17,11 +17,11 @@ import util.GraphLoader;
  * @author UCSD MOOC development team
  * @author ryanwilliamconnor
  * 
- * This class represents a geographic location as a graph.
+ * This class represents a geographic location as a directed graph.
  * Intersections between roads are nodes in the graph, and nodes are
  * represented by a custom MapIntersection object.
  * A MapIntersection object contains an intersection's geographic coordinates
- * and a list of other intersections that are connected by a road. 
+ * and a list of other intersections that are reachable by a road. 
  * So, this graph uses an adjacency list representation of edges.
  * The nodes are stored for easy access by coordinates in a hashmap of hashmaps.
  */
@@ -157,10 +157,10 @@ public class MapGraph {
 			String roadType, double length) throws IllegalArgumentException {
 
 		if ( (graph.get(from.x) == null) ||
-				  (graph.get(from.x).get(from.y) == null) ) {
+			 (graph.get(from.x).get(from.y) == null) ) {
 			throw new IllegalArgumentException(from.toString());
 		} else if ( (graph.get(to.x) == null) ||
-				  (graph.get(to.x).get(to.y) == null) ) {		
+				    (graph.get(to.x).get(to.y) == null) ) {		
 			throw new IllegalArgumentException(to.toString());
 		} else if (roadName == null) {
 			throw new IllegalArgumentException(roadName);
@@ -170,6 +170,7 @@ public class MapGraph {
 			throw new IllegalArgumentException(String.valueOf(length));
 		}
 		
+		// get the two nodes
 		MapIntersection fromNode = graph.get(from.x).get(from.y);
 		MapIntersection toNode = graph.get(to.x).get(to.y);
 		
@@ -178,6 +179,7 @@ public class MapGraph {
 			fromNode.neighbors = new ArrayList<MapIntersection>();
 		}
 		
+		// add "to" to "from"'s adjacency list
 		fromNode.neighbors.add(toNode);
 		numEdges++;
 	}
@@ -209,11 +211,8 @@ public class MapGraph {
 	{	
 		// It is a bit confusing to call this method "bfs" because breadth-first
 		// search is the name of a search strategy, not the name of the thing
-		// we want to do. I suggest renaming the method to something like
-		// "getShortestPath", which could implement a helper method called "bfs"
-		// if that's the search strategy we want to use.
-		
-		//nodeSearched.accept(next.getLocation());
+		// we want to do. I might rename the method to something like
+		// "getShortestPath", but this is not allowed by the specifications.
 		
 		// if the start or goal do not exist in the graph, return null
 		if ( (graph.get(start.x) == null) ||
@@ -229,8 +228,8 @@ public class MapGraph {
 		MapIntersection startNode = graph.get(start.x).get(start.y);
 		MapIntersection goalNode = graph.get(goal.x).get(goal.y);
 
-		// hold nodes to process, nodes processed, processed node parents,
-		// current node, current neighbors, and shortest path
+		// data structures for: nodes to process, nodes processed,
+		// processed node parents, current node, current neighbors, and shortest path
 		ArrayDeque<MapIntersection> toProcess = new ArrayDeque<MapIntersection>();
 		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
 		HashMap<MapIntersection,MapIntersection> parents =
@@ -248,6 +247,7 @@ public class MapGraph {
 			nodeSearched.accept((GeographicPoint)currentNode);
 			
 			if (currentNode.equals(goalNode)) {
+				// call the helper method to return shortest path
 				return codifyShortestPath(startNode, goalNode, parents);
 			}
 			
@@ -274,27 +274,28 @@ public class MapGraph {
 	 * 
 	 * @param startNode The starting location
 	 * @param goalNode The goal location
+	 * @param parents The map of nodes to the node that
+	 * "discovered" it during BFS
 	 * @return The list of intersections that form the shortest (unweighted)
 	 *   path from start to goal (including both startNode and goalNode).
 	 */
 	private List<GeographicPoint> codifyShortestPath(MapIntersection startNode,
 			MapIntersection goalNode, HashMap<MapIntersection,MapIntersection> parents) {
-		
+		// create the return value and add the goalNode to it
 		List<GeographicPoint> shortestPath = new ArrayList<GeographicPoint>(numVertices);
-		
-		GeographicPoint currentNode;
-		
 		shortestPath.add(goalNode);
 		
+		GeographicPoint currentNode;
 		int pathHop = 0;
-		
+		// while the last node added to the path is not the startNode,
+		// add the parent of the node at the current path "hop" to the path
 		while (!shortestPath.get(shortestPath.size()-1).equals(startNode)) {
 			
 			currentNode = shortestPath.get(pathHop);
 			shortestPath.add(parents.get(currentNode));
 			pathHop++;
 		}
-		
+		// reverse the path so startNode is first and goalNode is last
 		Collections.reverse(shortestPath);
 		return shortestPath;
 	}
@@ -376,9 +377,6 @@ public class MapGraph {
 		
 		// You can use this method for testing.  
 		
-		
-		
-		
 		/* Use this code in Week 3 End of Week Quiz
 		MapGraph theMap = new MapGraph();
 		System.out.print("DONE. \nLoading the map...");
@@ -393,7 +391,6 @@ public class MapGraph {
 		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
 
 		*/
-		
 	}
 	
 }
