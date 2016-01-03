@@ -121,8 +121,7 @@ public class MapGraph {
 			HashMap<Double,MapIntersection> nodes;
 			
 			if ( graph.get(location.x) != null ) {
-				// if the X coordinate is already part of a node in the graph,
-				// get that X coordinate's map of Y coords to nodes
+				// if X coord part of a node in the graph, get X coord's map of Y coords to nodes
 				nodes = graph.get(location.x);
 				// put the Y coord in the X's coord's map as a key to the new node
 				nodes.put((Double)location.y, node);
@@ -155,7 +154,8 @@ public class MapGraph {
 	 */
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
-
+		
+		// catch all the illegal argument exceptions
 		if ( (graph.get(from.x) == null) ||
 			 (graph.get(from.x).get(from.y) == null) ) {
 			throw new IllegalArgumentException(from.toString());
@@ -209,10 +209,10 @@ public class MapGraph {
 	public List<GeographicPoint> bfs(GeographicPoint start, 
 			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{	
-		// It is a bit confusing to call this method "bfs" because breadth-first
-		// search is the name of a search strategy, not the name of the thing
-		// we want to do. I might rename the method to something like
-		// "getShortestPath", but this is not allowed by the specifications.
+		/* NOTE: I think it is confusing to call this method "bfs" because breadth-first
+		   search is the name of a search strategy, not the name of the thing
+		   we want to do. I would think about renaming the method to something like
+		   "getShortestPath", but this is not allowed by the specifications. */
 		
 		// if the start or goal do not exist in the graph, return null
 		if ( (graph.get(start.x) == null) ||
@@ -228,7 +228,7 @@ public class MapGraph {
 		MapIntersection startNode = graph.get(start.x).get(start.y);
 		MapIntersection goalNode = graph.get(goal.x).get(goal.y);
 
-		// data structures for: nodes to process, nodes processed,
+		// initialize or declare data structures for: nodes to process, nodes processed,
 		// processed node parents, current node, current neighbors, and shortest path
 		ArrayDeque<MapIntersection> toProcess = new ArrayDeque<MapIntersection>();
 		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
@@ -237,10 +237,9 @@ public class MapGraph {
 		MapIntersection currentNode;
 		List<MapIntersection> currentNeighbors;
 		
+		// keep track of parents while doing BFS
 		toProcess.add(startNode);
 		visited.add(startNode);
-		
-		// keep track of parents while doing BFS
 		while (!toProcess.isEmpty()) {
 			
 			currentNode = toProcess.remove();
@@ -269,7 +268,7 @@ public class MapGraph {
 		return null;
 	}
 	
-	/** Codify the shortest path from start to goal using parents of each node on
+	/** Codify the shortest path from start to goal using "parents" of each node on
 	 * the BFS path from goal to start
 	 * 
 	 * @param startNode The starting location
@@ -281,14 +280,16 @@ public class MapGraph {
 	 */
 	private List<GeographicPoint> codifyShortestPath(MapIntersection startNode,
 			MapIntersection goalNode, HashMap<MapIntersection,MapIntersection> parents) {
+		
 		// create the return value and add the goalNode to it
 		List<GeographicPoint> shortestPath = new ArrayList<GeographicPoint>(numVertices);
 		shortestPath.add(goalNode);
 		
 		GeographicPoint currentNode;
 		int pathHop = 0;
-		// while the last node added to the path is not the startNode,
-		// add the parent of the node at the current path "hop" to the path
+		
+		/* while the last node added to the path is not the startNode,
+		   add the parent of the node at the current path "hop" to the path */
 		while (!shortestPath.get(shortestPath.size()-1).equals(startNode)) {
 			
 			currentNode = shortestPath.get(pathHop);
