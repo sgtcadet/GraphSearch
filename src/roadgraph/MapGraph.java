@@ -3,6 +3,7 @@ package roadgraph;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -252,7 +253,7 @@ public class MapGraph {
 	}
 	
 	/** Codify the shortest path from start to goal using parents of each node on
-	 * the BFS path from start to goal
+	 * the BFS path from goal to start
 	 * 
 	 * @param startNode The starting location
 	 * @param goalNode The goal location
@@ -264,19 +265,20 @@ public class MapGraph {
 		
 		List<GeographicPoint> shortestPath = new ArrayList<GeographicPoint>(numVertices);
 		
-		GeographicPoint currentParent;
+		GeographicPoint currentNode;
 		
-		shortestPath.add((GeographicPoint)startNode);
+		shortestPath.add(goalNode);
 		
 		int pathHop = 0;
 		
-		while (!shortestPath.get(shortestPath.size()-1).equals(goalNode)) {
+		while (!shortestPath.get(shortestPath.size()-1).equals(startNode)) {
 			
-			currentParent = shortestPath.get(pathHop);
-			shortestPath.add(parents.get(currentParent));
+			currentNode = shortestPath.get(pathHop);
+			shortestPath.add(parents.get(currentNode));
 			pathHop++;
 		}
 		
+		Collections.reverse(shortestPath);
 		return shortestPath;
 	}
 
@@ -356,6 +358,7 @@ public class MapGraph {
 		System.out.println("DONE.");
 		
 		// You can use this method for testing.  
+		
 		
 		
 		
