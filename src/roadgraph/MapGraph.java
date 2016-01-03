@@ -229,7 +229,7 @@ public class MapGraph {
 			currentNode = toProcess.remove();
 			
 			if (currentNode.equals(goalNode)) {
-				return calculateShortestPath(startNode, goalNode, parents);
+				return codifyShortestPath(startNode, goalNode, parents);
 			}
 			
 			if (currentNode.neighbors != null) {
@@ -246,25 +246,35 @@ public class MapGraph {
 				}
 			}
 		}
-		/*
-		Initialize: queue, visited HashSet and parent HashMap
-			Enqueue S onto the queue and add to visited
-			while queue is not empty:
-				dequeue node curr from front of queue
-				if curr == G, return parent map
-				for each of curr’s neighbors, n, not in visited set:
-					add n to visited set
-					add curr as n’s parent in parent map
-					enqueue n onto the queue
-			// If we get here then there’s no path
-		*/
+		
 		return null;
 	}
 	
-	private List<GeographicPoint> calculateShortestPath(MapIntersection startNode,
+	/** Codify the shortest path from start to goal using parents of each node on
+	 * the BFS path from start to goal
+	 * 
+	 * @param startNode The starting location
+	 * @param goalNode The goal location
+	 * @return The list of intersections that form the shortest (unweighted)
+	 *   path from start to goal (including both startNode and goalNode).
+	 */
+	private List<GeographicPoint> codifyShortestPath(MapIntersection startNode,
 			MapIntersection goalNode, HashMap<MapIntersection,MapIntersection> parents) {
 		
-		List<GeographicPoint> shortestPath = new
+		List<GeographicPoint> shortestPath = new ArrayList<GeographicPoint>(numVertices);
+		
+		GeographicPoint currentParent;
+		
+		shortestPath.add((GeographicPoint)startNode);
+		
+		int pathHop = 0;
+		
+		while (!shortestPath.get(shortestPath.size()-1).equals(goalNode)) {
+			
+			currentParent = shortestPath.get(pathHop);
+			shortestPath.add(parents.get(currentParent));
+			pathHop++;
+		}
 		
 		return shortestPath;
 	}
