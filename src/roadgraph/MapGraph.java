@@ -3,6 +3,7 @@ package roadgraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -23,6 +24,8 @@ public class MapGraph {
 	private int numVertices;
 	private int numEdges;
 	
+	private Set<GeographicPoint> nodes;
+	
 	private HashMap<Double,HashMap<Double,MapIntersection>> graph;
 	
 	/** 
@@ -33,6 +36,7 @@ public class MapGraph {
 		numVertices = 0;
 		numEdges = 0;
 		graph = new HashMap<Double,HashMap<Double,MapIntersection>>(4);
+		nodes = new HashSet<GeographicPoint>(numVertices);
 	}
 	
 	/**
@@ -50,8 +54,20 @@ public class MapGraph {
 	 */
 	public Set<GeographicPoint> getVertices()
 	{
-		//TODO: Implement this method in WEEK 2
-		return null;
+		// returns set of GeographicPoint as specified by requirements
+		// does not return set of MapIntersection
+		Set<Double> uniqueXCoords = graph.keySet();
+		
+		Set<Double> currXYCoords;
+		for (Double xCoord : uniqueXCoords) {
+			
+			currXYCoords = graph.get(xCoord).keySet();
+			for (Double yCoord : currXYCoords) {
+				nodes.add(graph.get(xCoord).get(yCoord));
+			}
+		}
+		
+		return nodes;
 	}
 	
 	/**
