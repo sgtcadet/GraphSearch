@@ -227,6 +227,7 @@ public class MapGraph {
 		while (!toProcess.isEmpty()) {
 			
 			currentNode = toProcess.remove();
+			nodeSearched.accept((GeographicPoint)currentNode);
 			
 			if (currentNode.equals(goalNode)) {
 				return codifyShortestPath(startNode, goalNode, parents);
@@ -355,6 +356,8 @@ public class MapGraph {
 		System.out.println("DONE.");
 		
 		// You can use this method for testing.  
+		
+		
 		
 		/* Use this code in Week 3 End of Week Quiz
 		MapGraph theMap = new MapGraph();
