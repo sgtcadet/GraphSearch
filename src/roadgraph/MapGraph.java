@@ -17,17 +17,24 @@ import util.GraphLoader;
  * @author UCSD MOOC development team
  * @author ryanwilliamconnor
  * 
- * A class which represents a graph of geographic locations
- * Nodes in the graph are intersections between roads
- *
+ * This class represents a geographic location as a graph.
+ * Intersections between roads are nodes in the graph, and nodes are
+ * represented by a custom MapIntersection object.
+ * A MapIntersection object contains an intersection's geographic coordinates
+ * and a list of other intersections that are connected by a road. 
+ * So, this graph uses an adjacency list representation of edges.
+ * The nodes are stored for easy access by coordinates in a hashmap of hashmaps.
  */
 public class MapGraph {
 	
 	private int numVertices;
 	private int numEdges;
 	
-	private Set<GeographicPoint> nodes;
+	// the set of unique geographic coordinates in the graph
+	private Set<GeographicPoint> nodeCoords;
 	
+	// store nodes in a hashmap of hashmaps to save storage space
+	// and access in constant time by geographic coordinate
 	private HashMap<Double,HashMap<Double,MapIntersection>> graph;
 	
 	/** 
@@ -37,8 +44,13 @@ public class MapGraph {
 	{
 		numVertices = 0;
 		numEdges = 0;
-		graph = new HashMap<Double,HashMap<Double,MapIntersection>>(4);
-		nodes = new HashSet<GeographicPoint>(numVertices);
+		
+		// could change initial capacity of "graph" based on how likely it is
+		// that intersections will share a Double type X coordinate
+		// e.g., could be likely if several long, major roads
+		// exactly followed a line of longitude
+		graph = new HashMap<Double,HashMap<Double,MapIntersection>>();
+		nodeCoords = new HashSet<GeographicPoint>(numVertices);
 	}
 	
 	/**
@@ -51,25 +63,26 @@ public class MapGraph {
 	}
 	
 	/**
-	 * Return the intersections, which are the vertices in this graph.
+	 * Return the coordinates of the intersections,
+	 * which are the vertices in this graph.
 	 * @return The vertices in this graph as GeographicPoints
 	 */
 	public Set<GeographicPoint> getVertices()
 	{
-		// returns set of GeographicPoint as specified by requirements
-		// does not return set of MapIntersection
 		Set<Double> uniqueXCoords = graph.keySet();
 		
 		Set<Double> currXYCoords;
+		// for every unique X coordinate, add that X coordinate's 
+		// unique Y coordinates to the set of intersection coordinates
 		for (Double xCoord : uniqueXCoords) {
 			
 			currXYCoords = graph.get(xCoord).keySet();
 			for (Double yCoord : currXYCoords) {
-				nodes.add(graph.get(xCoord).get(yCoord));
+				nodeCoords.add(graph.get(xCoord).get(yCoord));
 			}
 		}
 		
-		return nodes;
+		return nodeCoords;
 	}
 	
 	/**
@@ -102,22 +115,26 @@ public class MapGraph {
 			return false;
 		}
 		else {
-			
+			// create a new node with the location coordinates
 			MapIntersection node = new MapIntersection(location.x, location.y);
-			
+			// declare a variable to hold the map from Y coord (given X coord) to node
 			HashMap<Double,MapIntersection> nodes;
 			
 			if ( graph.get(location.x) != null ) {
-				
+				// if the X coordinate is already part of a node in the graph,
+				// get that X coordinate's map of Y coords to nodes
 				nodes = graph.get(location.x);
+				// put the Y coord in the X's coord's map as a key to the new node
+				nodes.put((Double)location.y, node);
 			}
 			else {
-				
+				// if not, create a new map first
 				nodes = new HashMap<Double,MapIntersection>(4);
+				// put the Y coord in the X coord's map
+				nodes.put((Double)location.y, node);
+				// and put the X coord's map in the graph
+				graph.put((Double)location.x, nodes);
 			}
-			
-			nodes.put((Double)location.y, node);
-			graph.put((Double)location.x, nodes);
 			
 			numVertices++;
 			return true;
