@@ -13,7 +13,8 @@ import java.util.Set;
  * The edges of the graph are not labeled.
  * Representation of edges via adjacency lists.
  * 
- * @author UCSD MOOC development team and YOU
+ * @author UCSD MOOC development team
+ * @author ryanwilliamconnor
  *
  */
 public class GraphAdjList extends Graph {
