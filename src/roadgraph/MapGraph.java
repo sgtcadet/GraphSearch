@@ -174,13 +174,12 @@ public class MapGraph {
 		MapIntersection fromNode = graph.get(from.x).get(from.y);
 		MapIntersection toNode = graph.get(to.x).get(to.y);
 		
-		// if "from"'s adjacency list has not been created, create it.
-		if (fromNode.neighbors == null) {
-			fromNode.neighbors = new ArrayList<MapIntersection>();
-		}
+		// create the MapEdge
+		MapEdge edgeToAdd = new MapEdge(fromNode, toNode,
+				                        roadName, roadType, length);
 		
 		// add "to" to "from"'s adjacency list
-		fromNode.neighbors.add(toNode);
+		fromNode.getNeighbors().add(edgeToAdd);
 		numEdges++;
 	}
 	
@@ -207,7 +206,8 @@ public class MapGraph {
 	 *   path from start to goal (including both start and goal).
 	 */
 	public List<GeographicPoint> bfs(GeographicPoint start, 
-			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
+			 					     GeographicPoint goal,
+			 					     Consumer<GeographicPoint> nodeSearched)
 	{	
 		/* NOTE: I think it is confusing to call this method "bfs" because breadth-first
 		   search is the name of a search strategy, not the name of the thing
@@ -235,7 +235,7 @@ public class MapGraph {
 		HashMap<MapIntersection,MapIntersection> parents =
 				new HashMap<MapIntersection,MapIntersection>(numVertices*2);
 		MapIntersection currentNode;
-		List<MapIntersection> currentNeighbors;
+		List<MapEdge> currentNeighbors;
 		
 		// keep track of parents while doing BFS
 		toProcess.add(startNode);
@@ -250,16 +250,16 @@ public class MapGraph {
 				return codifyShortestPath(startNode, goalNode, parents);
 			}
 			
-			if (currentNode.neighbors != null) {
+			if (currentNode.getNeighbors() != null) {
 				
-				currentNeighbors = currentNode.neighbors;
-				for (MapIntersection neighbor : currentNeighbors) {
+				currentNeighbors = currentNode.getNeighbors();
+				for (MapEdge neighbor : currentNeighbors) {
 					
-					if (!visited.contains(neighbor)){
+					if (!visited.contains(neighbor.getToIntersection())){
 					
-						visited.add(neighbor);
-						toProcess.add(neighbor);
-						parents.put(neighbor, currentNode);
+						visited.add(neighbor.getToIntersection());
+						toProcess.add(neighbor.getToIntersection());
+						parents.put(neighbor.getToIntersection(), currentNode);
 					}
 				}
 			}

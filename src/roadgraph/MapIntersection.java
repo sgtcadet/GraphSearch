@@ -1,5 +1,6 @@
 package roadgraph;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import geography.GeographicPoint;
@@ -10,7 +11,7 @@ import geography.GeographicPoint;
  */
 public class MapIntersection extends GeographicPoint {
 	// the adjacency list
-	List<MapIntersection> neighbors;
+	private List<MapEdge> neighbors;
 	
 	/** 
 	 * Create a new MapIntersection.
@@ -26,14 +27,16 @@ public class MapIntersection extends GeographicPoint {
 	public MapIntersection(double latitude, double longitude) {
 
 		super(latitude, longitude);
+		neighbors = new ArrayList<MapEdge>();
 	}
 	
 	/**
 	 * Get the list of intersections reachable from this intersection by a road.
 	 * @return The list of out neighbors of the node.
 	 */
-	public List<MapIntersection> getNeighbors() {
+	public List<MapEdge> getNeighbors() {
 		
 		return neighbors;
 	}
+	
 }
