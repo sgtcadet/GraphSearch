@@ -4,9 +4,11 @@ package roadgraph;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -243,24 +245,21 @@ public class MapGraph {
 		while (!toProcess.isEmpty()) {
 			
 			currentNode = toProcess.remove();
-			nodeSearched.accept((GeographicPoint)currentNode);
+			nodeSearched.accept(currentNode);
 			
 			if (currentNode.equals(goalNode)) {
 				// call the helper method to return shortest path
 				return codifyShortestPath(startNode, goalNode, parents);
 			}
-			
-			if (currentNode.getNeighbors() != null) {
 				
-				currentNeighbors = currentNode.getNeighbors();
-				for (MapEdge neighbor : currentNeighbors) {
+			currentNeighbors = currentNode.getNeighbors();
+			for (MapEdge neighbor : currentNeighbors) {
 					
-					if (!visited.contains(neighbor.getToIntersection())){
+				if (!visited.contains(neighbor.getToIntersection())){
 					
-						visited.add(neighbor.getToIntersection());
-						toProcess.add(neighbor.getToIntersection());
-						parents.put(neighbor.getToIntersection(), currentNode);
-					}
+					visited.add(neighbor.getToIntersection());
+					toProcess.add(neighbor.getToIntersection());
+					parents.put(neighbor.getToIntersection(), currentNode);
 				}
 			}
 		}
@@ -326,10 +325,101 @@ public class MapGraph {
 	public List<GeographicPoint> dijkstra(GeographicPoint start, 
 										  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 3
+		// if the start or goal do not exist in the graph, return null
+		if ( (graph.get(start.x) == null) ||
+				  (graph.get(start.x).get(start.y) == null) ) {
+			return null;
+		}
+		else if ( (graph.get(goal.x) == null) ||
+				  (graph.get(goal.x).get(goal.y) == null) ) {
+			return null;
+		}
+		
+		// assign the start and goal nodes
+		MapIntersection startNode = graph.get(start.x).get(start.y);
+		MapIntersection goalNode = graph.get(goal.x).get(goal.y);
 
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
+		// initialize the priority queue to hold distances
+		// of particular paths from startNodes to other nodes.
+		// the priority queue holds hashmaps of "nodes" -> "distance from start node following a unique path"
+		// priority is based on the following custom comparator:
+		// paths with shortest distance to start node go first.
+		PriorityQueue<HashMap<MapIntersection, Double>> toProcess = 
+				new PriorityQueue<HashMap<MapIntersection, Double>>(10, new Comparator<HashMap<MapIntersection, Double>>() {
+					public int compare(HashMap<MapIntersection, Double> mapOne, HashMap<MapIntersection, Double> mapTwo) {
+						return ((Double)mapOne.get((MapIntersection)mapOne.keySet().toArray()[0])).compareTo((Double)mapTwo.get((MapIntersection)mapTwo.keySet().toArray()[0]));
+					}
+				});
+		
+		// initialize or declare data structures for: nodes processed, processed node parents,
+		// current node, current neighbors, current best distances to nodes, and shortest path to goal
+		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
+		HashMap<MapIntersection,MapIntersection> parents =
+				new HashMap<MapIntersection,MapIntersection>(numVertices*2);
+		HashMap<MapIntersection, Double> distances = new HashMap<MapIntersection, Double>(numVertices*2);
+		HashMap<MapIntersection,Double> currentNodeWithDist;
+		MapIntersection currentNode;
+		List<MapEdge> currentNeighbors;
+		
+		// initialize distance to startNode as 0
+		// and distance to all other nodes as infinity
+		Set<GeographicPoint> allCoordinates = getVertices();
+		for (GeographicPoint coordinate : allCoordinates) {
+			if (coordinate.x == start.x && coordinate.y == start.y) {
+				distances.put(graph.get(coordinate.x).get(coordinate.y), 
+						      0.0);
+			}
+			else {
+				distances.put(graph.get(coordinate.x).get(coordinate.y),
+						      Double.POSITIVE_INFINITY);
+			}
+		}
+		// keep track of parents while doing a Dijkstra BFS with a priority queue
+		currentNodeWithDist = new HashMap<MapIntersection, Double>();
+		currentNodeWithDist.put(startNode, distances.get(startNode));
+		toProcess.add(currentNodeWithDist);
+		
+		// need to change the comparable interface for toProcess to order by
+		// the value of the key of the hashmap (ascending);
+		
+		while (!toProcess.isEmpty()) {
+			
+			currentNodeWithDist = toProcess.remove();
+			currentNode = (MapIntersection)currentNodeWithDist.keySet().toArray()[0];
+			nodeSearched.accept(currentNode);
+			
+			if (!visited.contains(currentNodeWithDist)) {
+				
+				visited.add(currentNode);
+				
+				if (currentNode.equals(goalNode)) {
+					// call the helper method to return shortest path
+					return codifyShortestPath(startNode, goalNode, parents);
+				}
+				
+				currentNeighbors = currentNode.getNeighbors();
+				for (MapEdge neighbor : currentNeighbors) {
+					// initialize values to make the logic easier to read
+					MapIntersection toIntersection = neighbor.getToIntersection();
+					double potentialDistance = 
+							distances.get(currentNode) + neighbor.getLength();
+					double currentDistance = distances.get(toIntersection);
+					
+					if (!visited.contains(toIntersection)) {
+						
+						if (potentialDistance < currentDistance) {
+							
+							distances.put(toIntersection, potentialDistance);
+							parents.put(neighbor.getToIntersection(), currentNode);
+							HashMap<MapIntersection, Double> nextNodeWithDist = 
+									new HashMap<MapIntersection, Double>();
+							nextNodeWithDist.put(toIntersection, potentialDistance);
+							toProcess.add(nextNodeWithDist);
+						}
+					}
+				}
+			}
+		}
 		
 		return null;
 	}
