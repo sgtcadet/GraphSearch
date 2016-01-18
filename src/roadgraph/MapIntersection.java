@@ -39,4 +39,12 @@ public class MapIntersection extends GeographicPoint {
 		return neighbors;
 	}
 	
+	// make immutable
+	@Override
+	public void setLocation(double x, double y) {
+		
+		throw new IllegalArgumentException("Under penalty of death, MapIntersections"
+				+ " cannot change location.");
+	}
+	
 }
