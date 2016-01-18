@@ -71,22 +71,6 @@ public class MapGraph {
 	 */
 	public Set<GeographicPoint> getVertices()
 	{
-		/* TODO: Simplify this in the obvious way
-		 * 
-		 */
-		Set<Double> uniqueXCoords = graph.keySet();
-		
-		Set<Double> currXYCoords;
-		// for every unique X coordinate, add that X coordinate's 
-		// unique Y coordinates to the set of intersection coordinates
-		for (Double xCoord : uniqueXCoords) {
-			
-			currXYCoords = graph.get(xCoord).keySet();
-			for (Double yCoord : currXYCoords) {
-				nodeCoords.add(graph.get(xCoord).get(yCoord));
-			}
-		}
-		
 		return nodeCoords;
 	}
 	
@@ -130,6 +114,7 @@ public class MapGraph {
 				nodes = graph.get(location.x);
 				// put the Y coord in the X's coord's map as a key to the new node
 				nodes.put((Double)location.y, node);
+				nodeCoords.add(location);
 			}
 			else {
 				// if not, create a new map first
@@ -138,6 +123,7 @@ public class MapGraph {
 				nodes.put((Double)location.y, node);
 				// and put the X coord's map in the graph
 				graph.put((Double)location.x, nodes);
+				nodeCoords.add(location);
 			}
 			
 			numVertices++;
