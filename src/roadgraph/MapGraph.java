@@ -559,7 +559,28 @@ public class MapGraph {
 		return null;
 	}
 
-	
+	/** Return shortest path from a start vertex back to that vertex.
+	 * 
+	 * Each vertex in the path can only be visited once, and each edge 
+	 * in the cycle can only be used once.  So, this method solves the 
+	 * Traveling Salesperson Problem.
+	 * 
+	 * @param start: The starting (and ending) location
+	 * @param stops: A list of locations to visit goal
+	 * @param nodeSearched: A hook for visualization.
+	 * @return The list of locations that form the shortest path from 
+	 *   start to start while visiting each location in stops exactly once
+	 *   and using any edges in the graph no more than once.
+	 */
+	public List<List<GeographicPoint>> 
+		shortestCycle(GeographicPoint start, 
+				      List<GeographicPoint> stops,
+					  Consumer<GeographicPoint> nodeSearched) {
+		/*
+		 * 
+		 */
+		return null;
+	}
 	
 	public static void main(String[] args)
 	{
