@@ -71,6 +71,9 @@ public class MapGraph {
 	 */
 	public Set<GeographicPoint> getVertices()
 	{
+		/* TODO: Simplify this in the obvious way
+		 * 
+		 */
 		Set<Double> uniqueXCoords = graph.keySet();
 		
 		Set<Double> currXYCoords;
@@ -572,14 +575,91 @@ public class MapGraph {
 	 *   start to start while visiting each location in stops exactly once
 	 *   and using any edges in the graph no more than once.
 	 */
-	public List<List<GeographicPoint>> 
-		shortestCycle(GeographicPoint start, 
-				      List<GeographicPoint> stops,
-					  Consumer<GeographicPoint> nodeSearched) {
-		/*
-		 * 
-		 */
-		return null;
+	public List<GeographicPoint> calulateShortestCycle(GeographicPoint start, 
+								List<GeographicPoint> stops,
+								Consumer<GeographicPoint> nodeSearched) {
+		
+		// if the start or any stops do not exist in the graph, return null
+		
+		if (!nodeCoords.contains(start)) {
+			return null;
+		}
+		
+		for (GeographicPoint stop : stops) {
+			if (!nodeCoords.contains(stop)) {
+				return null;
+			}
+			if (stop.equals(start)) {
+				throw new IllegalArgumentException();
+			}
+		}
+		
+		List<GeographicPoint> shortestCycle = 
+				new ArrayList<GeographicPoint>(stops.size()+2);
+		List<MapIntersection> toVisit = 
+				new ArrayList<MapIntersection>(stops.size());
+		MapIntersection current;
+		MapIntersection bestNext = null;
+		double totalTravelTime = 0;
+		
+		if (start instanceof MapIntersection) {
+			current = (MapIntersection)start;
+		}
+		else {
+			current = graph.get(start.x).get(start.y);
+		}
+			
+		if (stops.get(0) instanceof MapIntersection) {
+			for (GeographicPoint stop : stops) {
+				toVisit.add((MapIntersection)stop);
+			}
+		}
+		else {
+			for (GeographicPoint stop : stops) {
+				toVisit.add(graph.get(stop.x).get(stop.y));
+			}
+		}
+		
+		shortestCycle.add(current);
+		
+		while (toVisit.size() > 1) {
+			
+			double bestNextTravelTime = Double.POSITIVE_INFINITY;
+			
+			// greedily go to closet vertex from the vertices left visit
+			for (MapIntersection potentialNext : toVisit) {
+					
+				List<GeographicPoint> shortestPathToNext = 
+						aStarSearch(current, potentialNext);
+				GeographicPoint startHop;
+				GeographicPoint endHop;
+					
+				double potentialNextTravelTime = 0;
+					
+				for (int i = 0; i < shortestPathToNext.size()-1; i++) {
+
+					startHop = shortestPathToNext.get(i);
+					endHop = shortestPathToNext.get(i+1);
+					potentialNextTravelTime += startHop.distance(endHop);
+				}
+					
+				if (potentialNextTravelTime < bestNextTravelTime) {
+						
+					bestNextTravelTime = potentialNextTravelTime;
+					bestNext = potentialNext;
+				}
+			}
+			
+			shortestCycle.add(bestNext);
+			totalTravelTime += bestNextTravelTime;
+			toVisit.remove(bestNext);
+			current = bestNext;
+		}
+
+		shortestCycle.add(toVisit.get(0));
+		totalTravelTime += toVisit.get(0).distance(start);
+		shortestCycle.add(start);
+		return shortestCycle;
 	}
 	
 	public static void main(String[] args)
