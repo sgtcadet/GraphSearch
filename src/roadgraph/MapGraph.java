@@ -307,7 +307,8 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest path from 
 	 *   start to goal (including both start and goal).
 	 */
-	public List<GeographicPoint> dijkstra(GeographicPoint start, GeographicPoint goal) {
+	public List<GeographicPoint> dijkstra(GeographicPoint start, 
+										  GeographicPoint goal) {
 		// Dummy variable for calling the search algorithms
 		// You do not need to change this method.
         Consumer<GeographicPoint> temp = (x) -> {};
@@ -323,7 +324,8 @@ public class MapGraph {
 	 *   start to goal (including both start and goal).
 	 */
 	public List<GeographicPoint> dijkstra(GeographicPoint start, 
-										  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
+										  GeographicPoint goal, 
+										  Consumer<GeographicPoint> nodeSearched)
 	{
 		// if the start or goal do not exist in the graph, return null
 		if ( (graph.get(start.x) == null) ||
@@ -341,22 +343,28 @@ public class MapGraph {
 
 		// initialize the priority queue to hold distances
 		// of particular paths from startNodes to other nodes.
-		// the priority queue holds hashmaps of "nodes" -> "distance from start node following a unique path"
-		// priority is based on the following custom comparator:
-		// paths with shortest distance to start node go first.
+		// the priority queue holds hashmaps of "nodes" -> "distance from 
+		// start node following a unique path" priority is based on the
+		// following custom comparator: paths with shortest distance to
+		// start node go first.
 		PriorityQueue<HashMap<MapIntersection, Double>> toProcess = 
-				new PriorityQueue<HashMap<MapIntersection, Double>>(10, new Comparator<HashMap<MapIntersection, Double>>() {
-					public int compare(HashMap<MapIntersection, Double> mapOne, HashMap<MapIntersection, Double> mapTwo) {
-						return ((Double)mapOne.get((MapIntersection)mapOne.keySet().toArray()[0])).compareTo((Double)mapTwo.get((MapIntersection)mapTwo.keySet().toArray()[0]));
-					}
+			new PriorityQueue<HashMap<MapIntersection, Double>>(10,
+				new Comparator<HashMap<MapIntersection, Double>>() {
+					public int compare(HashMap<MapIntersection, Double> mapOne, 
+						HashMap<MapIntersection, Double> mapTwo) {
+							return ((Double)mapOne.get((MapIntersection)mapOne.keySet().toArray()[0])).compareTo((Double)mapTwo.get((MapIntersection)mapTwo.keySet().toArray()[0]));
+						}
 				});
 		
-		// initialize or declare data structures for: nodes processed, processed node parents,
-		// current node, current neighbors, current best distances to nodes, and shortest path to goal
-		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
+		// initialize or declare data structures for: nodes processed, 
+		// processed node parents, current node, current neighbors, current 
+		// best distances to nodes, and shortest path to goal
+		HashSet<MapIntersection> visited = 
+				new HashSet<MapIntersection>(numVertices*2);
 		HashMap<MapIntersection,MapIntersection> parents =
 				new HashMap<MapIntersection,MapIntersection>(numVertices*2);
-		HashMap<MapIntersection, Double> distances = new HashMap<MapIntersection, Double>(numVertices*2);
+		HashMap<MapIntersection, Double> distances =
+				new HashMap<MapIntersection, Double>(numVertices*2);
 		HashMap<MapIntersection,Double> currentNodeWithDist;
 		MapIntersection currentNode;
 		List<MapEdge> currentNeighbors;
@@ -374,7 +382,7 @@ public class MapGraph {
 						      Double.POSITIVE_INFINITY);
 			}
 		}
-		// keep track of parents while doing a Dijkstra BFS with a priority queue
+		// keep track of parents while doing Dijkstra BFS with a priority queue
 		currentNodeWithDist = new HashMap<MapIntersection, Double>();
 		currentNodeWithDist.put(startNode, distances.get(startNode));
 		toProcess.add(currentNodeWithDist);
@@ -402,7 +410,7 @@ public class MapGraph {
 					// initialize values to make the logic easier to read
 					MapIntersection toIntersection = neighbor.getToIntersection();
 					double potentialDistance = 
-							distances.get(currentNode) + neighbor.getLength();
+							distances.get(currentNode) + neighbor.getTravelTime();
 					double currentDistance = distances.get(toIntersection);
 					
 					if (!visited.contains(toIntersection)) {
@@ -430,7 +438,8 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest path from 
 	 *   start to goal (including both start and goal).
 	 */
-	public List<GeographicPoint> aStarSearch(GeographicPoint start, GeographicPoint goal) {
+	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
+											 GeographicPoint goal) {
 		// Dummy variable for calling the search algorithms
         Consumer<GeographicPoint> temp = (x) -> {};
         return aStarSearch(start, goal, temp);
@@ -440,7 +449,7 @@ public class MapGraph {
 	 * 
 	 * @param start The starting location
 	 * @param goal The goal location
-	 * @param nodeSearched A hook for visualization.  See assignment instructions for how to use it.
+	 * @param nodeSearched A hook for visualization.
 	 * @return The list of intersections that form the shortest path from 
 	 *   start to goal (including both start and goal).
 	 */
@@ -464,7 +473,8 @@ public class MapGraph {
 
 		// initialize the priority queue to hold distances
 		// of particular paths from startNodes to other nodes.
-		// the priority queue holds hashmaps of "nodes" -> "distance from start node following a unique path"
+		// the priority queue holds hashmaps of "nodes" -> "distance from 
+		// start node following a unique path"
 		// priority is based on the following custom comparator:
 		// paths with shortest distance to start node go first.
 		PriorityQueue<HashMap<MapIntersection, Double>> toProcess = 
@@ -522,15 +532,16 @@ public class MapGraph {
 				
 				currentNeighbors = currentNode.getNeighbors();
 				for (MapEdge neighbor : currentNeighbors) {
-					// initialize values to make the logic easier to read
+
 					MapIntersection toIntersection = neighbor.getToIntersection();
-					double pathFromStartNode = 
-							distances.get(currentNode) + neighbor.getLength();
-					double asCrowFliesToGoalDist = toIntersection.distance(goalNode);
-					double aStarHeurDist = pathFromStartNode + asCrowFliesToGoalDist;
-					double currentDist = distances.get(toIntersection);
 					
 					if (!visited.contains(toIntersection)) {
+						// initialize values to make the logic easier to read
+						double pathFromStartNode = 
+								distances.get(currentNode) + neighbor.getTravelTime();
+						double asCrowFliesToGoalDist = toIntersection.distance(goalNode);
+						double aStarHeurDist = pathFromStartNode + asCrowFliesToGoalDist;
+						double currentDist = distances.get(toIntersection);
 						
 						if (aStarHeurDist < currentDist) {
 							

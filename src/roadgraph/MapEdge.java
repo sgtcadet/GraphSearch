@@ -12,6 +12,7 @@ public class MapEdge {
 		private String roadType;
 		private double length;
 		private double speedLimit;
+		private double travelTime;
 		
 		public MapEdge(MapIntersection fromIntersection,
 				       MapIntersection toIntersection,
@@ -47,6 +48,19 @@ public class MapEdge {
 			else if (roadType.equals("service")) {
 				this.speedLimit = 15.0;
 			}
+			else {
+				this.speedLimit = 40.0;
+				System.out.println("Road " + roadName + " has a strange roadType. " +
+								   "This may make results innacurate");
+			}
+			
+			setTravelTime(speedLimit);
+		}
+		
+		// to support changing the speed limit on this road
+		public void setTravelTime(double speedLimit) {
+			
+			this.travelTime = length / speedLimit;
 		}
 		
 		public MapIntersection getFromIntersection() {
@@ -67,5 +81,9 @@ public class MapEdge {
 		
 		public double getLength() {
 			return length;
+		}
+		
+		public double getTravelTime() {
+			return travelTime;
 		}
 }
