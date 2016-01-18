@@ -545,16 +545,6 @@ public class MapGraph {
 				}
 			}
 		}
-		/*
-		change Priority Queue ordering to be based on:
-			g(n): the distance (cost) from start vertex to vertex n
-			AND
-			h(n): the heuristic estimated cost from vertex n to goal vertex
-
-			Guaranteed to find shortest path still only if h(n) is never an overestimate.
-
-			A* is a minor change.  Dijkstra is a special case where h(n) = 0.
-		*/
 		return null;
 	}
 

@@ -11,6 +11,7 @@ public class MapEdge {
 		private String roadName;
 		private String roadType;
 		private double length;
+		private double speedLimit;
 		
 		public MapEdge(MapIntersection fromIntersection,
 				       MapIntersection toIntersection,
@@ -21,6 +22,31 @@ public class MapEdge {
 			this.roadName = roadName;
 			this.roadType = roadType;
 			this.length = length;
+			
+			if (roadType.equals("motorway")) {
+				this.speedLimit = 70.0;
+			}
+			else if (roadType.equals("trunk")) {
+				this.speedLimit = 60.0;
+			}
+			else if (roadType.equals("primary")) {
+				this.speedLimit = 55.0;
+			}
+			else if (roadType.equals("secondary")) {
+				this.speedLimit = 45.0;
+			}
+			else if (roadType.equals("tertiary")) {
+				this.speedLimit = 40.0;
+			}
+			else if (roadType.equals("unclassified")) {
+				this.speedLimit = 35.0;
+			}
+			else if (roadType.equals("residential")) {
+				this.speedLimit = 25.0;
+			}
+			else if (roadType.equals("service")) {
+				this.speedLimit = 15.0;
+			}
 		}
 		
 		public MapIntersection getFromIntersection() {
