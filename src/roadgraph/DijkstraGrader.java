@@ -15,6 +15,7 @@ import geography.*;
 
 /**
  * @author UCSD MOOC Development Team
+ * @author ryanwilliamconnor
  * Grader for Module 3, Part 1.
  */
 public class DijkstraGrader implements Runnable {
@@ -83,7 +84,8 @@ public class DijkstraGrader implements Runnable {
     public void judge(int i, MapGraph result, CorrectAnswer corr, GeographicPoint start, GeographicPoint end) {
         // Correct if paths are same length and have the same elements
         feedback += appendFeedback(i, "Running Dijkstra's algorithm from (" + start.getX() + ", " + start.getY() + ") to (" + end.getX() + ", " + end.getY() + ")");
-        List<GeographicPoint> path = result.dijkstra(start, end);
+        PathObject graderObject = result.dijkstra(start, end);
+        List<GeographicPoint> path = graderObject.getPath();
         if (path == null) {
             if (corr.path == null) {
                 feedback += "PASSED.";

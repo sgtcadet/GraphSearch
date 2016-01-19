@@ -16,6 +16,7 @@ import geography.*;
 
 /**
  * @author UCSD MOOC Development Team
+ * @author ryanwilliamconnor
  * Grader for Module 3, Part 2.
  */
 public class AStarGrader implements Runnable {
@@ -84,7 +85,8 @@ public class AStarGrader implements Runnable {
     public void judge(int i, MapGraph result, CorrectAnswer corr, GeographicPoint start, GeographicPoint end) {
     	// Correct if paths are same length and have the same elements
         feedback += appendFeedback(i, "Running A* from (" + start.getX() + ", " + start.getY() + ") to (" + end.getX() + ", " + end.getY() + ")");
-        List<GeographicPoint> path = result.aStarSearch(start, end);
+        PathObject graderObject = result.aStarSearch(start, end);
+        List<GeographicPoint> path = graderObject.getPath();
         if (path == null) {
             if (corr.path == null) {
                 feedback += "PASSED.";

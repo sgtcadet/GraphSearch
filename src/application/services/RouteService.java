@@ -27,6 +27,7 @@ import gmapsfx.javascript.object.LatLongBounds;
 import gmapsfx.javascript.object.MVCArray;
 import gmapsfx.shapes.Polyline;
 import javafx.scene.control.Button;
+import roadgraph.PathObject;
 
 public class RouteService {
 	private GoogleMap map;
@@ -107,15 +108,19 @@ public class RouteService {
         			toggle == RouteController.BFS) {
         		markerManager.initVisualization();
             	Consumer<geography.GeographicPoint> nodeAccepter = markerManager.getVisualization()::acceptPoint;
+            	PathObject servicePath = null;
             	List<geography.GeographicPoint> path = null;
             	if (toggle == RouteController.BFS) {
-            		path = markerManager.getDataSet().getGraph().bfs(start, end, nodeAccepter);
+            		servicePath = markerManager.getDataSet().getGraph().bfs(start, end, nodeAccepter);
+            		path = servicePath.getPath();
             	}
             	else if (toggle == RouteController.DIJ) {
-            		path = markerManager.getDataSet().getGraph().dijkstra(start, end, nodeAccepter);
+            		servicePath = markerManager.getDataSet().getGraph().dijkstra(start, end, nodeAccepter);
+            		path = servicePath.getPath();
             	}
             	else if (toggle == RouteController.A_STAR) {
-            		path = markerManager.getDataSet().getGraph().aStarSearch(start, end, nodeAccepter);
+            		servicePath = markerManager.getDataSet().getGraph().aStarSearch(start, end, nodeAccepter);
+            		path = servicePath.getPath();
             	}
 
             	if(path == null) {

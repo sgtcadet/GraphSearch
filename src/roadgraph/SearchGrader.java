@@ -14,6 +14,7 @@ import geography.*;
 
 /**
  * @author UCSD MOOC Development Team
+ * @author ryanwilliamconnor
  * Grader for Module 2.
  */
 public class SearchGrader implements Runnable {
@@ -102,7 +103,8 @@ public class SearchGrader implements Runnable {
 
         // Correct if paths are same size and have same elements
         feedback += appendFeedback(i * 3, "Testing BFS");
-        List<GeographicPoint> bfs = result.bfs(start, end);
+        PathObject graderPath = result.bfs(start, end);
+        List<GeographicPoint> bfs = graderPath.getPath();
         if (bfs == null) {
             if (corr.path == null) {
                 feedback += "PASSED.";

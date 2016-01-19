@@ -182,7 +182,7 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest (unweighted)
 	 *   path from start to goal (including both start and goal).
 	 */
-	public List<GeographicPoint> bfs(GeographicPoint start, GeographicPoint goal) {
+	public PathObject bfs(GeographicPoint start, GeographicPoint goal) {
 		// Dummy variable for calling the search algorithms
         Consumer<GeographicPoint> temp = (x) -> {};
         return bfs(start, goal, temp);
@@ -196,7 +196,7 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest (unweighted)
 	 *   path from start to goal (including both start and goal).
 	 */
-	public List<GeographicPoint> bfs(GeographicPoint start, 
+	public PathObject bfs(GeographicPoint start, 
 			 					     GeographicPoint goal,
 			 					     Consumer<GeographicPoint> nodeSearched)
 	{	
@@ -266,27 +266,32 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest (unweighted)
 	 *   path from start to goal (including both startNode and goalNode).
 	 */
-	private List<GeographicPoint> codifyShortestPath(MapIntersection startNode,
-			MapIntersection goalNode, HashMap<MapIntersection,MapIntersection> parents) {
-		
+	private PathObject codifyShortestPath(MapIntersection startNode,
+							MapIntersection goalNode, 
+							HashMap<MapIntersection,MapIntersection> parents) {
 		// create the return value and add the goalNode to it
 		List<GeographicPoint> shortestPath = new ArrayList<GeographicPoint>(numVertices);
 		shortestPath.add(goalNode);
 		
 		GeographicPoint currentNode;
+		GeographicPoint parentNode;
 		int pathHop = 0;
+		double length = 0;
 		
 		/* while the last node added to the path is not the startNode,
 		   add the parent of the node at the current path "hop" to the path */
 		while (!shortestPath.get(shortestPath.size()-1).equals(startNode)) {
 			
 			currentNode = shortestPath.get(pathHop);
-			shortestPath.add(parents.get(currentNode));
+			parentNode = parents.get(currentNode);
+			shortestPath.add(parentNode);
+			length += parentNode.distance(currentNode);
 			pathHop++;
 		}
 		// reverse the path so startNode is first and goalNode is last
 		Collections.reverse(shortestPath);
-		return shortestPath;
+		PathObject path = new PathObject(shortestPath, length);
+		return path;
 	}
 
 	/** Find the path from start to goal using Dijkstra's algorithm
@@ -296,8 +301,8 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest path from 
 	 *   start to goal (including both start and goal).
 	 */
-	public List<GeographicPoint> dijkstra(GeographicPoint start, 
-										  GeographicPoint goal) {
+	public PathObject dijkstra(GeographicPoint start, 
+							   GeographicPoint goal) {
 		// Dummy variable for calling the search algorithms
 		// You do not need to change this method.
         Consumer<GeographicPoint> temp = (x) -> {};
@@ -312,10 +317,9 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest path from 
 	 *   start to goal (including both start and goal).
 	 */
-	public List<GeographicPoint> dijkstra(GeographicPoint start, 
-										  GeographicPoint goal, 
-										  Consumer<GeographicPoint> nodeSearched)
-	{
+	public PathObject dijkstra(GeographicPoint start, 
+							   GeographicPoint goal, 
+							   Consumer<GeographicPoint> nodeSearched) {
 		// if the start or goal do not exist in the graph, return null
 		if ( (graph.get(start.x) == null) ||
 				  (graph.get(start.x).get(start.y) == null) ) {
@@ -427,8 +431,8 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest path from 
 	 *   start to goal (including both start and goal).
 	 */
-	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
-											 GeographicPoint goal) {
+	public PathObject aStarSearch(GeographicPoint start, 
+								  GeographicPoint goal) {
 		// Dummy variable for calling the search algorithms
         Consumer<GeographicPoint> temp = (x) -> {};
         return aStarSearch(start, goal, temp);
@@ -442,10 +446,9 @@ public class MapGraph {
 	 * @return The list of intersections that form the shortest path from 
 	 *   start to goal (including both start and goal).
 	 */
-	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
-											 GeographicPoint goal,
-											 Consumer<GeographicPoint> nodeSearched)
-	{
+	public PathObject aStarSearch(GeographicPoint start, 
+								  GeographicPoint goal,
+								  Consumer<GeographicPoint> nodeSearched) {
 		// if the start or goal do not exist in the graph, return null
 		if ( (graph.get(start.x) == null) ||
 				  (graph.get(start.x).get(start.y) == null) ) {
@@ -561,7 +564,7 @@ public class MapGraph {
 	 *   start to start while visiting each location in stops exactly once
 	 *   and using any edges in the graph no more than once.
 	 */
-	public List<GeographicPoint> calulateShortestCycle(GeographicPoint start, 
+	public PathObject calulateShortestCycle(GeographicPoint start, 
 								List<GeographicPoint> stops,
 								Consumer<GeographicPoint> nodeSearched) {
 		
@@ -585,11 +588,9 @@ public class MapGraph {
 				new ArrayList<MapIntersection>(stops.size());
 		MapIntersection current;
 		MapIntersection bestNext = null;
-		List<GeographicPoint> bestShortestPathToNext = null;
+		PathObject shortestPathToNext = null;
 		double potentialNextTravelTime = 0;
-		List<GeographicPoint> potentialShortestPathToNext;
-		GeographicPoint startHop;
-		GeographicPoint endHop;
+		PathObject pathToNext;
 		double totalTravelTime = 0;
 		
 		if (start instanceof MapIntersection) {
@@ -621,46 +622,38 @@ public class MapGraph {
 			// greedily go to closet vertex from the vertices left visit
 			for (MapIntersection potentialNext : toVisit) {
 					
-				potentialShortestPathToNext =
-						aStarSearch(current, potentialNext);
+				pathToNext = aStarSearch(current, potentialNext);
 					
-				// must calculate distance here instead of in aStar since
-				// Java methods don't return tuples of different types :(
-				for (int i = 0; i < potentialShortestPathToNext.size()-1; i++) {
-
-					startHop = potentialShortestPathToNext.get(i);
-					endHop = potentialShortestPathToNext.get(i+1);
-					potentialNextTravelTime += startHop.distance(endHop);
-				}
-					
-				if (potentialNextTravelTime < bestNextTravelTime) {
+				if (pathToNext.getLength() < 
+						bestNextTravelTime) {
 						
 					bestNextTravelTime = potentialNextTravelTime;
 					bestNext = potentialNext;
-					bestShortestPathToNext = potentialShortestPathToNext;
+					shortestPathToNext = pathToNext;
 				}
 			}
 			// add each hop except first (first is already added)
-			for (int i = 1; i < bestShortestPathToNext.size(); i++) {
+			for (int i = 1; i < shortestPathToNext.getPath().size(); i++) {
 				
-				shortestCycle.add(bestShortestPathToNext.get(i));
+				shortestCycle.add(shortestPathToNext.getPath().get(i));
 			}
 			totalTravelTime += bestNextTravelTime;
 			toVisit.remove(bestNext);
 			current = bestNext;
 		}
-		// can add start to toVisit and do the helper method
-		bestShortestPathToNext = aStarSearch(current, start);
+ 
+		shortestPathToNext = aStarSearch(current, start);
 		
-		for (int i = 0; i < bestShortestPathToNext.size()-1; i++) {
+		totalTravelTime += shortestPathToNext.getLength();
+		
+		for (int i = 0; i < shortestPathToNext.getPath().size()-1; i++) {
 
-			startHop = bestShortestPathToNext.get(i);
-			endHop = bestShortestPathToNext.get(i+1);
-			totalTravelTime += startHop.distance(endHop);
-			shortestCycle.add(bestShortestPathToNext.get(i));
+			shortestCycle.add(shortestPathToNext.getPath().get(i));
 		}
 		shortestCycle.add(start);
-		return shortestCycle;
+		
+		PathObject cycle = new PathObject(shortestCycle, totalTravelTime);
+		return cycle;
 	}
 	
 	public static void main(String[] args)
