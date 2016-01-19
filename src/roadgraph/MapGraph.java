@@ -42,8 +42,7 @@ public class MapGraph {
 	/** 
 	 * Create a new empty MapGraph 
 	 */
-	public MapGraph()
-	{
+	public MapGraph() {
 		numVertices = 0;
 		numEdges = 0;
 		
@@ -59,8 +58,7 @@ public class MapGraph {
 	 * Get the number of vertices (road intersections) in the graph
 	 * @return The number of vertices in the graph.
 	 */
-	public int getNumVertices()
-	{
+	public int getNumVertices() {
 		return numVertices;
 	}
 	
@@ -69,8 +67,7 @@ public class MapGraph {
 	 * which are the vertices in this graph.
 	 * @return The vertices in this graph as GeographicPoints
 	 */
-	public Set<GeographicPoint> getVertices()
-	{
+	public Set<GeographicPoint> getVertices() {
 		return nodeCoords;
 	}
 	
@@ -78,8 +75,7 @@ public class MapGraph {
 	 * Get the number of road segments in the graph
 	 * @return The number of edges in the graph.
 	 */
-	public int getNumEdges()
-	{
+	public int getNumEdges() {
 		return numEdges;
 	}
 
@@ -92,8 +88,8 @@ public class MapGraph {
 	 * @return true if a node was added, false if it was not (the node
 	 * was already in the graph, or the parameter is null).
 	 */
-	public boolean addVertex(GeographicPoint location)
-	{
+	public boolean addVertex(GeographicPoint location) {
+		
 		if (location == null){
 			
 			return false;
@@ -197,9 +193,8 @@ public class MapGraph {
 	 *   path from start to goal (including both start and goal).
 	 */
 	public PathObject bfs(GeographicPoint start, 
-			 					     GeographicPoint goal,
-			 					     Consumer<GeographicPoint> nodeSearched)
-	{	
+			 			  GeographicPoint goal,
+			 	   	      Consumer<GeographicPoint> nodeSearched) {	
 		/* NOTE: I think it is confusing to call this method "bfs" because breadth-first
 		   search is the name of a search strategy, not the name of the thing
 		   we want to do. I would think about renaming the method to something like
@@ -564,7 +559,7 @@ public class MapGraph {
 	 *   start to start while visiting each location in stops exactly once
 	 *   and using any edges in the graph no more than once.
 	 */
-	public PathObject calulateShortestCycle(GeographicPoint start, 
+	public PathObject calculateShortestCycle(GeographicPoint start, 
 								List<GeographicPoint> stops,
 								Consumer<GeographicPoint> nodeSearched) {
 		
@@ -586,11 +581,10 @@ public class MapGraph {
 				new ArrayList<GeographicPoint>(stops.size()+2);
 		List<MapIntersection> toVisit = 
 				new ArrayList<MapIntersection>(stops.size());
-		MapIntersection current;
-		MapIntersection bestNext = null;
-		PathObject shortestPathToNext = null;
-		double potentialNextTravelTime = 0;
-		PathObject pathToNext;
+		
+		MapIntersection current, bestNext = null;
+		PathObject pathToNext, shortestPathToNext;
+
 		double totalTravelTime = 0;
 		
 		if (start instanceof MapIntersection) {
@@ -615,8 +609,6 @@ public class MapGraph {
 		
 		while (toVisit.size() > 1) {
 			
-			// tspAStarSearch(toVisit, current);
-			
 			shortestPathToNext = null;
 			
 			// greedily go to closet vertex from the vertices left visit
@@ -628,6 +620,7 @@ public class MapGraph {
 					 (pathToNext.getLength() < 
 					  shortestPathToNext.getLength()) ) {
 
+					bestNext = potentialNext;
 					shortestPathToNext = pathToNext;
 				}
 			}
@@ -655,8 +648,26 @@ public class MapGraph {
 		return cycle;
 	}
 	
-	public static void main(String[] args)
-	{
+	/** Return shortest path from a start vertex back to that vertex.
+	 * 
+	 * Each vertex in the path can only be visited once, and each edge 
+	 * in the cycle can only be used once.  So, this method solves the 
+	 * Traveling Salesperson Problem.
+	 * 
+	 * @param start: The starting (and ending) location
+	 * @param stops: A list of locations to visit goal
+	 * @return The list of locations that form the shortest path from 
+	 *   start to start while visiting each location in stops exactly once
+	 *   and using any edges in the graph no more than once.
+	 */
+	public PathObject calculateShortestCycle(GeographicPoint start,
+											List<GeographicPoint> stops) {
+		// Dummy variable for calling the search algorithms
+        Consumer<GeographicPoint> temp = (x) -> {};
+        return calculateShortestCycle(start, stops, temp);
+	}
+	
+	public static void main(String[] args) {
 		System.out.print("Making a new map...");
 		MapGraph theMap = new MapGraph();
 		System.out.print("DONE. \nLoading the map...");
