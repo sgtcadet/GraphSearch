@@ -566,7 +566,6 @@ public class MapGraph {
 								Consumer<GeographicPoint> nodeSearched) {
 		
 		// if the start or any stops do not exist in the graph, return null
-		
 		if (!nodeCoords.contains(start)) {
 			return null;
 		}
@@ -586,6 +585,11 @@ public class MapGraph {
 				new ArrayList<MapIntersection>(stops.size());
 		MapIntersection current;
 		MapIntersection bestNext = null;
+		List<GeographicPoint> bestShortestPathToNext = null;
+		double potentialNextTravelTime = 0;
+		List<GeographicPoint> potentialShortestPathToNext;
+		GeographicPoint startHop;
+		GeographicPoint endHop;
 		double totalTravelTime = 0;
 		
 		if (start instanceof MapIntersection) {
@@ -610,22 +614,22 @@ public class MapGraph {
 		
 		while (toVisit.size() > 1) {
 			
+			// tspAStarSearch(toVisit, current);
+			
 			double bestNextTravelTime = Double.POSITIVE_INFINITY;
 			
 			// greedily go to closet vertex from the vertices left visit
 			for (MapIntersection potentialNext : toVisit) {
 					
-				List<GeographicPoint> shortestPathToNext = 
+				potentialShortestPathToNext =
 						aStarSearch(current, potentialNext);
-				GeographicPoint startHop;
-				GeographicPoint endHop;
 					
-				double potentialNextTravelTime = 0;
-					
-				for (int i = 0; i < shortestPathToNext.size()-1; i++) {
+				// must calculate distance here instead of in aStar since
+				// Java methods don't return tuples of different types :(
+				for (int i = 0; i < potentialShortestPathToNext.size()-1; i++) {
 
-					startHop = shortestPathToNext.get(i);
-					endHop = shortestPathToNext.get(i+1);
+					startHop = potentialShortestPathToNext.get(i);
+					endHop = potentialShortestPathToNext.get(i+1);
 					potentialNextTravelTime += startHop.distance(endHop);
 				}
 					
@@ -633,17 +637,28 @@ public class MapGraph {
 						
 					bestNextTravelTime = potentialNextTravelTime;
 					bestNext = potentialNext;
+					bestShortestPathToNext = potentialShortestPathToNext;
 				}
 			}
-			
-			shortestCycle.add(bestNext);
+			// add each hop except first (first is already added)
+			for (int i = 1; i < bestShortestPathToNext.size(); i++) {
+				
+				shortestCycle.add(bestShortestPathToNext.get(i));
+			}
 			totalTravelTime += bestNextTravelTime;
 			toVisit.remove(bestNext);
 			current = bestNext;
 		}
+		// can add start to toVisit and do the helper method
+		bestShortestPathToNext = aStarSearch(current, start);
+		
+		for (int i = 0; i < bestShortestPathToNext.size()-1; i++) {
 
-		shortestCycle.add(toVisit.get(0));
-		totalTravelTime += toVisit.get(0).distance(start);
+			startHop = bestShortestPathToNext.get(i);
+			endHop = bestShortestPathToNext.get(i+1);
+			totalTravelTime += startHop.distance(endHop);
+			shortestCycle.add(bestShortestPathToNext.get(i));
+		}
 		shortestCycle.add(start);
 		return shortestCycle;
 	}
