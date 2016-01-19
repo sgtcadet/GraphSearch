@@ -563,15 +563,17 @@ public class MapGraph {
 								List<GeographicPoint> stops,
 								Consumer<GeographicPoint> nodeSearched) {
 		
-		// if the start or any stops do not exist in the graph, return null
+		// if the start does not exist in the graph, return null
 		if (!nodeCoords.contains(start)) {
 			return null;
 		}
 		
+		// if any stops do not exist in the graph, return null
 		for (GeographicPoint stop : stops) {
 			if (!nodeCoords.contains(stop)) {
 				return null;
 			}
+			// if any stops are the start, throw an exception
 			if (stop.equals(start)) {
 				throw new IllegalArgumentException();
 			}
@@ -615,7 +617,9 @@ public class MapGraph {
 			for (MapIntersection potentialNext : toVisit) {
 					
 				pathToNext = aStarSearch(current, potentialNext);
-					
+				/*
+				 * TODO: Ensure no hops are the start or any stops
+				 */
 				if ( (shortestPathToNext == null) || 
 					 (pathToNext.getLength() < 
 					  shortestPathToNext.getLength()) ) {
@@ -685,10 +689,8 @@ public class MapGraph {
 		GeographicPoint start = new GeographicPoint(32.8648772, -117.2254046);
 		GeographicPoint end = new GeographicPoint(32.8660691, -117.217393);
 		
-		
 		List<GeographicPoint> route = theMap.dijkstra(start,end);
 		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
-
 		*/
 	}
 	
