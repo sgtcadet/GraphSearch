@@ -617,18 +617,17 @@ public class MapGraph {
 			
 			// tspAStarSearch(toVisit, current);
 			
-			double bestNextTravelTime = Double.POSITIVE_INFINITY;
+			shortestPathToNext = null;
 			
 			// greedily go to closet vertex from the vertices left visit
 			for (MapIntersection potentialNext : toVisit) {
 					
 				pathToNext = aStarSearch(current, potentialNext);
 					
-				if (pathToNext.getLength() < 
-						bestNextTravelTime) {
-						
-					bestNextTravelTime = potentialNextTravelTime;
-					bestNext = potentialNext;
+				if ( (shortestPathToNext == null) || 
+					 (pathToNext.getLength() < 
+					  shortestPathToNext.getLength()) ) {
+
 					shortestPathToNext = pathToNext;
 				}
 			}
@@ -637,7 +636,7 @@ public class MapGraph {
 				
 				shortestCycle.add(shortestPathToNext.getPath().get(i));
 			}
-			totalTravelTime += bestNextTravelTime;
+			totalTravelTime += shortestPathToNext.getLength();
 			toVisit.remove(bestNext);
 			current = bestNext;
 		}
