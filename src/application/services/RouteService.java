@@ -119,7 +119,10 @@ public class RouteService {
             		path = servicePath.getPath();
             	}
             	else if (toggle == RouteController.A_STAR) {
-            		servicePath = markerManager.getDataSet().getGraph().aStarSearch(start, end, nodeAccepter);
+            		servicePath = markerManager.getDataSet().getGraph().aStarSearch(start, 
+            																		end, 
+            																		nodeAccepter,
+            																		new HashMap<GeographicPoint,Integer>());
             		path = servicePath.getPath();
             	}
 
