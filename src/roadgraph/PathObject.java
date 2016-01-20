@@ -10,6 +10,12 @@ import java.util.List;
  */
 import geography.GeographicPoint;
 
+/** A class that represents a path in a graph that represents a geographic location. 
+ * Useful for returning multiple data types from graph search methods (e.g., a list
+ * of vertices on a path and the path's length).
+ * 
+ * @author ryanwilliamconnor
+ */
 public class PathObject {
 
 	private List<GeographicPoint> path;
