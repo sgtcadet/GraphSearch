@@ -175,8 +175,7 @@ public class MapGraph {
 	 * 
 	 * @param start The starting location
 	 * @param goal The goal location
-	 * @return The list of intersections that form the shortest (unweighted)
-	 *   path from start to goal (including both start and goal).
+	 * @return The shortest (unweighted) path from start to goal (including both start and goal).
 	 */
 	public PathObject bfs(GeographicPoint start, GeographicPoint goal) {
 		// Dummy variable for calling the search algorithms
@@ -189,8 +188,7 @@ public class MapGraph {
 	 * @param start The starting location
 	 * @param goal The goal location
 	 * @param nodeSearched A hook for visualization.  See assignment instructions for how to use it.
-	 * @return The list of intersections that form the shortest (unweighted)
-	 *   path from start to goal (including both start and goal).
+	 * @return The shortest (unweighted) path from start to goal (including both start and goal).
 	 */
 	public PathObject bfs(GeographicPoint start, 
 			 			  GeographicPoint goal,
@@ -233,7 +231,7 @@ public class MapGraph {
 			
 			if (currentNode.equals(goalNode)) {
 				// call the helper method to return shortest path
-				return codifyShortestPath(startNode, goalNode, parents);
+				return codifyPath(startNode, goalNode, parents);
 			}
 				
 			currentNeighbors = currentNode.getNeighbors();
@@ -251,17 +249,17 @@ public class MapGraph {
 		return null;
 	}
 	
-	/** Codify the shortest path from start to goal using "parents" of each node on
-	 * the BFS path from goal to start
+	/** Codify the path from start to goal using "parents" of each node on
+	 * a previously found path from goal to start.
 	 * 
-	 * @param startNode The starting location
-	 * @param goalNode The goal location
-	 * @param parents The map of nodes to the node that
-	 * "discovered" it during BFS
-	 * @return The list of intersections that form the shortest (unweighted)
-	 *   path from start to goal (including both startNode and goalNode).
+	 * Helper method for shortest path methods.
+	 * 
+	 * @param startNode: The starting location
+	 * @param goalNode: The goal location
+	 * @param parents: The map of nodes to the node that "discovered" it during a search
+	 * @return A path from start to goal (including both startNode and goalNode).
 	 */
-	private PathObject codifyShortestPath(MapIntersection startNode,
+	private PathObject codifyPath(MapIntersection startNode,
 							MapIntersection goalNode, 
 							HashMap<MapIntersection,MapIntersection> parents) {
 		// create the return value and add the goalNode to it
@@ -293,8 +291,7 @@ public class MapGraph {
 	 * 
 	 * @param start The starting location
 	 * @param goal The goal location
-	 * @return The list of intersections that form the shortest path from 
-	 *   start to goal (including both start and goal).
+	 * @return The shortest path from start to goal (including both start and goal).
 	 */
 	public PathObject dijkstra(GeographicPoint start, 
 							   GeographicPoint goal) {
@@ -309,8 +306,7 @@ public class MapGraph {
 	 * @param start The starting location
 	 * @param goal The goal location
 	 * @param nodeSearched A hook for visualization.  See assignment instructions for how to use it.
-	 * @return The list of intersections that form the shortest path from 
-	 *   start to goal (including both start and goal).
+	 * @return The shortest path from start to goal (including both start and goal).
 	 */
 	public PathObject dijkstra(GeographicPoint start, 
 							   GeographicPoint goal, 
@@ -390,7 +386,7 @@ public class MapGraph {
 				
 				if (currentNode.equals(goalNode)) {
 					// call the helper method to return shortest path
-					return codifyShortestPath(startNode, goalNode, parents);
+					return codifyPath(startNode, goalNode, parents);
 				}
 				
 				currentNeighbors = currentNode.getNeighbors();
@@ -421,29 +417,31 @@ public class MapGraph {
 
 	/** Find the path from start to goal using A-Star search
 	 * 
-	 * @param start The starting location
-	 * @param goal The goal location
-	 * @return The list of intersections that form the shortest path from 
-	 *   start to goal (including both start and goal).
+	 * @param start: The starting location
+	 * @param goal: The goal location
+	 * @param offLimits: Locations that are not allowed on the path
+	 * @return The shortest path from start to goal (including both start and goal).
 	 */
 	public PathObject aStarSearch(GeographicPoint start, 
-								  GeographicPoint goal) {
+								  GeographicPoint goal,
+								  HashMap<GeographicPoint, Integer> offLimits) {
 		// Dummy variable for calling the search algorithms
         Consumer<GeographicPoint> temp = (x) -> {};
-        return aStarSearch(start, goal, temp);
+        return aStarSearch(start, goal, temp, offLimits);
 	}
 	
 	/** Find the path from start to goal using A-Star search
 	 * 
-	 * @param start The starting location
-	 * @param goal The goal location
-	 * @param nodeSearched A hook for visualization.
-	 * @return The list of intersections that form the shortest path from 
-	 *   start to goal (including both start and goal).
+	 * @param start: The starting location
+	 * @param goal: The goal location
+	 * @param offLimits: Locations that are not allowed on the path
+	 * @param nodeSearched: A hook for visualization.
+	 * @return The shortest path path from  start to goal (including both start and goal).
 	 */
 	public PathObject aStarSearch(GeographicPoint start, 
 								  GeographicPoint goal,
-								  Consumer<GeographicPoint> nodeSearched) {
+								  Consumer<GeographicPoint> nodeSearched,
+								  HashMap<GeographicPoint, Integer> offLimits) {
 		// if the start or goal do not exist in the graph, return null
 		if ( (graph.get(start.x) == null) ||
 				  (graph.get(start.x).get(start.y) == null) ) {
@@ -514,7 +512,7 @@ public class MapGraph {
 				
 				if (currentNode.equals(goalNode)) {
 					// call the helper method to return shortest path
-					return codifyShortestPath(startNode, goalNode, parents);
+					return codifyPath(startNode, goalNode, parents);
 				}
 				
 				currentNeighbors = currentNode.getNeighbors();
@@ -522,7 +520,8 @@ public class MapGraph {
 
 					MapIntersection toIntersection = neighbor.getToIntersection();
 					
-					if (!visited.contains(toIntersection)) {
+					if (!visited.contains(toIntersection) &&
+						offLimits.get(toIntersection) != 1) {
 						// initialize values to make the logic easier to read
 						double pathFromStartNode = 
 								distances.get(currentNode) + neighbor.getTravelTime();
@@ -546,22 +545,25 @@ public class MapGraph {
 		return null;
 	}
 
-	/** Return shortest path from a start vertex back to that vertex.
+	/** Calculate shortest tour from a start vertex to other vertices.
 	 * 
-	 * Each vertex in the path can only be visited once, and each edge 
-	 * in the cycle can only be used once.  So, this method solves the 
-	 * Traveling Salesperson Problem.
+	 * Each vertex in the path can only be visited once.
+	 * Solves the Traveling Salesperson Problem using a greedy algorithm.
 	 * 
 	 * @param start: The starting (and ending) location
 	 * @param stops: A list of locations to visit goal
 	 * @param nodeSearched: A hook for visualization.
-	 * @return The list of locations that form the shortest path from 
-	 *   start to start while visiting each location in stops exactly once
-	 *   and using any edges in the graph no more than once.
+	 * @return A list of greedy paths: the first item in the list is the path from
+	 * start to the first stop, the second item in the list is the path from the first
+	 * stop to the second stop, etc.  The last item in the list is the "meta path" --
+	 * including only start and stops (and start again to complete the Hamiltonian path).
 	 */
-	public PathObject calculateShortestCycle(GeographicPoint start, 
-								List<GeographicPoint> stops,
-								Consumer<GeographicPoint> nodeSearched) {
+	public ArrayList<PathObject> greedyShortestCycle(GeographicPoint start, 
+							    	List<GeographicPoint> stops,
+								    Consumer<GeographicPoint> nodeSearched,
+								    HashMap<GeographicPoint,Integer> offLimits) {
+		
+		ArrayList<PathObject> greedyPaths = new ArrayList<PathObject>();
 		
 		// if the start does not exist in the graph, return null
 		if (!nodeCoords.contains(start)) {
@@ -591,19 +593,23 @@ public class MapGraph {
 		
 		if (start instanceof MapIntersection) {
 			current = (MapIntersection)start;
+			offLimits.put(start, 1);
 		}
 		else {
 			current = graph.get(start.x).get(start.y);
+			offLimits.put(graph.get(start.x).get(start.y), 1);
 		}
 			
 		if (stops.get(0) instanceof MapIntersection) {
 			for (GeographicPoint stop : stops) {
 				toVisit.add((MapIntersection)stop);
+				offLimits.put(stop, 1);
 			}
 		}
 		else {
 			for (GeographicPoint stop : stops) {
 				toVisit.add(graph.get(stop.x).get(stop.y));
+				offLimits.put(graph.get(stop.x).get(stop.y), 1);
 			}
 		}
 		
@@ -615,11 +621,9 @@ public class MapGraph {
 			
 			// greedily go to closet vertex from the vertices left visit
 			for (MapIntersection potentialNext : toVisit) {
-					
-				pathToNext = aStarSearch(current, potentialNext);
-				/*
-				 * TODO: Ensure no hops are the start or any stops
-				 */
+				
+				pathToNext = aStarSearch(current, potentialNext, offLimits);
+				
 				if ( (shortestPathToNext == null) || 
 					 (pathToNext.getLength() < 
 					  shortestPathToNext.getLength()) ) {
@@ -633,12 +637,15 @@ public class MapGraph {
 				
 				shortestCycle.add(shortestPathToNext.getPath().get(i));
 			}
+			// save the path between hops at the appropriate place in the return ArrayList
+			greedyPaths.add(shortestPathToNext);
 			totalTravelTime += shortestPathToNext.getLength();
 			toVisit.remove(bestNext);
 			current = bestNext;
 		}
- 
-		shortestPathToNext = aStarSearch(current, start);
+		// start is no longer off limits (need to complete the cycle)
+		offLimits.put(start,  0);
+		shortestPathToNext = aStarSearch(current, start, offLimits);
 		
 		totalTravelTime += shortestPathToNext.getLength();
 		
@@ -648,27 +655,176 @@ public class MapGraph {
 		}
 		shortestCycle.add(start);
 		
-		PathObject cycle = new PathObject(shortestCycle, totalTravelTime);
-		return cycle;
+		PathObject shortestCycleObject = 
+				new PathObject(shortestCycle, totalTravelTime);
+		greedyPaths.add(shortestCycleObject);
+		
+		return greedyPaths;
 	}
 	
-	/** Return shortest path from a start vertex back to that vertex.
+	/** Calculate shortest tour from a start vertex to other vertices.
 	 * 
-	 * Each vertex in the path can only be visited once, and each edge 
-	 * in the cycle can only be used once.  So, this method solves the 
-	 * Traveling Salesperson Problem.
+	 * Each vertex in the path can only be visited once.
+	 * Solves the Traveling Salesperson Problem using a greedy algorithm.
 	 * 
 	 * @param start: The starting (and ending) location
 	 * @param stops: A list of locations to visit goal
-	 * @return The list of locations that form the shortest path from 
-	 *   start to start while visiting each location in stops exactly once
-	 *   and using any edges in the graph no more than once.
+	 * @return A list of greedy paths: the first item in the list is the path from
+	 * start to the first stop, the second item in the list is the path from the first
+	 * stop to the second stop, etc.  The last item in the list is the "meta path" --
+	 * including only start and stops (and start again to complete the Hamiltonian path).
 	 */
-	public PathObject calculateShortestCycle(GeographicPoint start,
-											List<GeographicPoint> stops) {
+	public ArrayList<PathObject> greedyShortestCycle(GeographicPoint start,
+									List<GeographicPoint> stops,
+									HashMap<GeographicPoint,Integer> offLimits) {
 		// Dummy variable for calling the search algorithms
         Consumer<GeographicPoint> temp = (x) -> {};
-        return calculateShortestCycle(start, stops, temp);
+        return greedyShortestCycle(start, stops, temp, offLimits);
+	}
+	
+	/** Calculate shortest tour from a start vertex to other vertices.
+	 * 
+	 * Each vertex in the path can only be visited once.
+	 * Solves the Traveling Salesperson Problem using a 2-opt algorithm to 
+	 * iteratively improve upon a greedy algorithm.  This method allows multiple
+	 * uses of the same edge.
+	 * 
+	 * @param start: The starting (and ending) location
+	 * @param stops: A list of locations to visit goal
+	 * @return The shortest tour from start that visits each stop exactly once.
+	 */
+	public PathObject twoOptShortestCycle(GeographicPoint start,
+										  List<GeographicPoint> stops,
+										  HashMap<GeographicPoint,Integer> offLimits) {
+		
+		PathObject candidateCycle;	
+		PathObject shortestCycle;
+		ArrayList<PathObject> greedyPaths;
+
+		greedyPaths = greedyShortestCycle(start, stops, offLimits);
+		candidateCycle = greedyPaths.get(greedyPaths.size()-1);
+		shortestCycle = candidateCycle;
+
+		if ( (stops.size() + 1) < 4 ) {
+			
+			return shortestCycle;
+		}
+		
+		// PathObjects have an ordered list of ALL intersections in the tour,
+		// but it is useful to have an ordered list of just the stops in the tour.
+		ArrayList<GeographicPoint> metaPath = new ArrayList<GeographicPoint>();
+		metaPath.add(start);
+		for (GeographicPoint location: shortestCycle.getPath()) {
+			
+			if (stops.contains(location)) {
+				metaPath.add(location);
+				offLimits.put(location, 1);
+			}
+		}
+		metaPath.add(start);
+		offLimits.put(start, 1);
+		
+		shortestCycle = twoOptChecking(greedyPaths, metaPath, shortestCycle, offLimits);
+		
+		return shortestCycle;
+	}
+	
+	/** Check possible 2-opt combinations of edges for shorter length.
+	 * 
+	 * Helper method for twoOptShortestCycle.
+	 * 
+	 * @param greedyPaths: The current shortest paths.
+	 * @param metaPath: A list of locations to visit goal
+	 * @return The shortest tour from start that visits each stop exactly once.
+	 */
+	public PathObject twoOptChecking(ArrayList<PathObject> greedyPaths,
+									 ArrayList<GeographicPoint> metaPath,
+									 PathObject shortestCycle,
+									 HashMap<GeographicPoint,Integer> offLimits) {
+		
+		GeographicPoint startEdgeOne, endEdgeOne, startEdgeTwo, endEdgeTwo;
+		PathObject newPathOne, newPathTwo, reversePath;
+		double oldLengthOne, oldLengthTwo, origLength, 
+			   newLengthOne, newLengthTwo, swapLength;
+			
+		for (int i = 0; i < metaPath.size()-2; i++) {
+				
+			startEdgeOne = metaPath.get(i);
+			endEdgeOne = metaPath.get(i+1);
+			
+			for (int j = i+2; j < metaPath.size(); j++) {
+				
+				startEdgeTwo = metaPath.get(j);
+				endEdgeTwo = metaPath.get(j+1);
+				
+				if ( !( (i == 0) && (j == metaPath.size()) ) ) {
+					
+					oldLengthOne = greedyPaths.get(i).getLength();
+					oldLengthTwo = greedyPaths.get(j).getLength();
+					origLength = oldLengthOne + oldLengthTwo;
+					
+					offLimits.put(startEdgeTwo, 0);
+					newPathOne = aStarSearch(startEdgeOne, startEdgeTwo, offLimits);
+					offLimits.put(startEdgeTwo, 1);
+					newLengthOne = newPathOne.getLength();
+					offLimits.put(endEdgeTwo, 0);
+					newPathTwo = aStarSearch(endEdgeOne, endEdgeTwo, offLimits);
+					offLimits.put(endEdgeTwo, 1);
+					newLengthTwo = newPathTwo.getLength();
+					swapLength = newLengthOne + newLengthTwo;
+					
+					if (swapLength < origLength) {
+						
+						double swapSave, forwardLength, reverseLength, reverseGain;
+						
+						swapSave = origLength - swapLength;
+						// calculate needed reverse paths, which could be
+						// different because of, for example, one way streets.
+						forwardLength = 0;
+						reverseLength = 0;
+						
+						ArrayList<PathObject> reversePathObjects = 
+								new ArrayList<PathObject>();
+						
+						for (int k = j; k > i+1; k--) {
+							
+							forwardLength += greedyPaths.get(k-1).getLength();
+							offLimits.put(metaPath.get(k-1), 0);
+							reversePath = aStarSearch(metaPath.get(k), 
+													  metaPath.get(k-1),
+													  offLimits);
+							offLimits.put(metaPath.get(k-1), 1);
+							reverseLength += reversePath.getLength();
+							reversePathObjects.add(reversePath);
+						}
+						
+						reverseGain = reverseLength - forwardLength;
+						// compare the distance gained by the reverse path to the
+						// distance saved by the swap.  if we saved more, make this
+						// 2-opt the new greedyPath (which involves setting both
+						// the 2-opt paths and the new reverse paths).
+						if (swapSave > reverseGain) {
+							
+							greedyPaths.set(i, newPathOne);
+							
+							for (int k = i; k < j+1; k++) {
+								
+								if (k == i) {
+									greedyPaths.set(k, newPathTwo);	
+								}
+								else {
+									greedyPaths.set(k, reversePathObjects.remove(0));
+								}
+							}
+							shortestCycle = twoOptChecking(greedyPaths, metaPath, 
+														   shortestCycle, offLimits);
+							break;
+						}
+					}
+				}
+			}
+		}
+		return shortestCycle;
 	}
 	
 	public static void main(String[] args) {
