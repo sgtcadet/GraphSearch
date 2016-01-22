@@ -1,0 +1,30 @@
+0 0 1 1 "Residential 1" residential
+0 0 1 1 "Secondary 1" secondary
+0 0 1 1 "Motorway 1" motorway
+1 1 2 2 "Residential 2" residential
+1 1 2 2 "Secondary 2" secondary
+1 1 2 2 "Motorway 2" motorway
+2 2 3 3 "Residential 3" residential
+2 2 3 3 "Secondary 3" secondary
+2 2 3 3 "Motorway 3" motorway
+3 3 4 4 "Residential 4" residential
+3 3 4 4 "Secondary 4" secondary
+3 3 4 4 "Motorway 4" motorway
+4 4 5 5 "Residential 5" residential
+4 4 5 5 "Secondary 5" secondary
+4 4 5 5 "Motorway 5" motorway
+5 5 6 6 "Residential 6" residential
+5 5 6 6 "Secondary 6" secondary
+5 5 6 6 "Motorway 6" motorway
+0 0 -1 0 "Residential -1" residential
+0 0 -1 0 "Secondary -1" secondary
+0 0 -1 0 "Motorway -1" motorway
+0 0 -2 0 "Residential -2" residential
+0 0 -2 0 "Secondary -2" secondary
+0 0 -2 0 "Motorway -2" motorway
+0 0 -3 0 "Residential -3" residential
+0 0 -3 0 "Secondary -3" secondary
+0 0 -3 0 "Motorway -3" motorway
+6 6 0 0 "Residential Road Home" residential
+6 6 0 0 "Secondary Road Home" secondary
+6 6 0 0 "Motorway Road Home" motorway
