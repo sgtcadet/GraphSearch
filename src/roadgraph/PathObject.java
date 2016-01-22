@@ -20,11 +20,13 @@ public class PathObject {
 
 	private List<GeographicPoint> path;
 	private double length;
+	private double travelTime;
 	
-	public PathObject(List<GeographicPoint> path, double length) {
+	public PathObject(List<GeographicPoint> path, double length, double travelTime) {
 		
 		this.path = path;
 		this.length = length;
+		this.travelTime = travelTime;
 	}
 	
 	public List<GeographicPoint> getPath() {
@@ -35,5 +37,10 @@ public class PathObject {
 	public double getLength() {
 		
 		return length;
+	}
+	
+	public double getTravelTime() {
+		
+		return travelTime;
 	}
 }
