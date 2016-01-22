@@ -212,12 +212,13 @@ public class MapGraph {
 		MapIntersection startNode = graph.get(start.x).get(start.y);
 		MapIntersection goalNode = graph.get(goal.x).get(goal.y);
 
-		// initialize or declare data structures for: nodes to process, nodes processed,
-		// processed node parents, current node, current neighbors, and shortest path
+		// initialize or declare data structures for: nodes to process, 
+		// nodes processed, processed node parents, current node, 
+		// current neighbors, roads taken, and shortest path
 		ArrayDeque<MapIntersection> toProcess = new ArrayDeque<MapIntersection>();
 		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
-		HashMap<MapIntersection,MapIntersection> parents =
-				new HashMap<MapIntersection,MapIntersection>(numVertices*2);
+		HashMap<MapIntersection,MapEdge> roadMap = 
+				new HashMap<MapIntersection,MapEdge>(numVertices*2);
 		MapIntersection currentNode;
 		List<MapEdge> currentNeighbors;
 		
@@ -228,10 +229,10 @@ public class MapGraph {
 			
 			currentNode = toProcess.remove();
 			nodeSearched.accept(currentNode);
-			System.out.println(currentNode);
+
 			if (currentNode.equals(goalNode)) {
 				// call the helper method to return shortest path
-				return codifyPath(startNode, goalNode, parents);
+				return codifyPath(startNode, goalNode, roadMap);
 			}
 				
 			currentNeighbors = currentNode.getNeighbors();
@@ -242,7 +243,7 @@ public class MapGraph {
 					
 					visited.add(neighbor.getToIntersection());
 					toProcess.add(neighbor.getToIntersection());
-					parents.put(neighbor.getToIntersection(), currentNode);
+					roadMap.put(neighbor.getToIntersection(), neighbor);
 				}
 			}
 		}
@@ -257,34 +258,41 @@ public class MapGraph {
 	 * 
 	 * @param startNode: The starting location
 	 * @param goalNode: The goal location
-	 * @param parents: The map of nodes to the node that "discovered" it during a search
+	 * @param roadMap: The map of end nodes of a road segment to the 
+	 * 				   road that was taken to get to that node
 	 * @return A path from start to goal (including both startNode and goalNode).
 	 */
 	private PathObject codifyPath(MapIntersection startNode,
 							MapIntersection goalNode, 
-							HashMap<MapIntersection,MapIntersection> parents) {
-		// create the return value and add the goalNode to it
+							HashMap<MapIntersection,MapEdge> roadMap) {
+
 		List<GeographicPoint> shortestPath = new ArrayList<GeographicPoint>(numVertices);
+		List<MapEdge> roadsTraveled = new ArrayList<MapEdge>();
+		
 		shortestPath.add(goalNode);
 		
-		GeographicPoint currentNode;
-		GeographicPoint parentNode;
+		GeographicPoint currentNode, parentNode;
+		MapEdge roadTraveled;
 		int pathHop = 0;
-		double length = 0;
+		double length = 0, travelTime = 0;
 		
 		/* while the last node added to the path is not the startNode,
 		   add the parent of the node at the current path "hop" to the path */
 		while (!shortestPath.get(shortestPath.size()-1).equals(startNode)) {
 			
 			currentNode = shortestPath.get(pathHop);
-			parentNode = parents.get(currentNode);
+			roadTraveled = roadMap.get(currentNode);
+			parentNode = roadTraveled.getFromIntersection();
 			shortestPath.add(parentNode);
-			length += parentNode.distance(currentNode);
+			roadsTraveled.add(roadTraveled);
+			length += roadTraveled.getLength();
+			travelTime += roadTraveled.getTravelTime();
 			pathHop++;
 		}
 		// reverse the path so startNode is first and goalNode is last
 		Collections.reverse(shortestPath);
-		PathObject path = new PathObject(shortestPath, length);
+		Collections.reverse(roadsTraveled);
+		PathObject path = new PathObject(shortestPath, roadsTraveled, length, travelTime);
 		return path;
 	}
 
@@ -343,11 +351,11 @@ public class MapGraph {
 		
 		// initialize or declare data structures for: nodes processed, 
 		// processed node parents, current node, current neighbors, current 
-		// best distances to nodes, and shortest path to goal
+		// best distances to nodes, roads taken, and shortest path to goal
 		HashSet<MapIntersection> visited = 
 				new HashSet<MapIntersection>(numVertices*2);
-		HashMap<MapIntersection,MapIntersection> parents =
-				new HashMap<MapIntersection,MapIntersection>(numVertices*2);
+		HashMap<MapIntersection,MapEdge> roadMap =
+				new HashMap<MapIntersection,MapEdge>(numVertices*2);
 		HashMap<MapIntersection, Double> distances =
 				new HashMap<MapIntersection, Double>(numVertices*2);
 		HashMap<MapIntersection,Double> currentNodeWithDist;
@@ -387,7 +395,7 @@ public class MapGraph {
 				
 				if (currentNode.equals(goalNode)) {
 					// call the helper method to return shortest path
-					return codifyPath(startNode, goalNode, parents);
+					return codifyPath(startNode, goalNode, roadMap);
 				}
 				
 				currentNeighbors = currentNode.getNeighbors();
@@ -403,7 +411,7 @@ public class MapGraph {
 						if (potentialDistance < currentDistance) {
 							
 							distances.put(toIntersection, potentialDistance);
-							parents.put(neighbor.getToIntersection(), currentNode);
+							roadMap.put(neighbor.getToIntersection(), neighbor);
 							HashMap<MapIntersection, Double> nextNodeWithDist = 
 									new HashMap<MapIntersection, Double>();
 							nextNodeWithDist.put(toIntersection, potentialDistance);
@@ -470,11 +478,12 @@ public class MapGraph {
 					}
 				});
 		
-		// initialize or declare data structures for: nodes processed, processed node parents,
-		// current node, current neighbors, current best distances to nodes, and shortest path to goal
+		// initialize or declare data structures for: nodes processed, 
+		// processed node parents, current node, current neighbors, 
+		// current best distances to nodes, roads taken, and shortest path to goal
 		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
-		HashMap<MapIntersection,MapIntersection> parents =
-				new HashMap<MapIntersection,MapIntersection>(numVertices*2);
+		HashMap<MapIntersection,MapEdge> roadMap =
+				new HashMap<MapIntersection,MapEdge>(numVertices*2);
 		HashMap<MapIntersection,Double> distances = 
 				new HashMap<MapIntersection, Double>(numVertices*2);
 		HashMap<MapIntersection,Double> currentNodeWithDist;
@@ -507,14 +516,14 @@ public class MapGraph {
 			currentNode = (MapIntersection)currentNodeWithDist.keySet().toArray()[0];
 			nodeSearched.accept(currentNode);
 			
-			System.out.println(currentNode + " is the current aStarSearch hop");
+			//System.out.println(currentNode + " is the current aStarSearch hop");
 			if (!visited.contains(currentNodeWithDist)) {
 				
 				visited.add(currentNode);
 				
 				if (currentNode.equals(goalNode)) {
 					// call the helper method to return shortest path
-					return codifyPath(startNode, goalNode, parents);
+					return codifyPath(startNode, goalNode, roadMap);
 				}
 				
 				currentNeighbors = currentNode.getNeighbors();
@@ -522,7 +531,7 @@ public class MapGraph {
 				for (MapEdge neighbor : currentNeighbors) {
 
 					MapIntersection toIntersection = neighbor.getToIntersection();
-					System.out.println(toIntersection + " is the potential next aStarHop");
+					//System.out.println(toIntersection + " is the potential next aStarHop");
 					// it the intersection hasn't been visited and is not off limits,
 					// check if the distance to it is better than the current next distance.
 					boolean xInLimitsMap, yInLimitsMap = false, isOffLimits = false;
@@ -533,25 +542,33 @@ public class MapGraph {
 							isOffLimits = (offLimits.get(toIntersection.getX()).get(toIntersection.getY())==1);
 						}
 					}
-					System.out.println(!visited.contains(toIntersection) + " that its not visited");
-					System.out.println(!isOffLimits + " that its not illegal");
+					//System.out.println(!visited.contains(toIntersection) + " that its not visited");
+					//System.out.println(!isOffLimits + " that its not illegal");
 					if (!visited.contains(toIntersection) && !isOffLimits) {
 						// initialize values to make the logic easier to read
 						double pathFromStartNode = 
 								distances.get(currentNode) + neighbor.getTravelTime();
+						System.out.println("******Start aStar Heuristic Calculation******");
+						System.out.println("Current node is: " + currentNode);
+						System.out.println("Traveled this much so far: " + distances.get(currentNode));
+						System.out.println("Travel time to " + neighbor.getToIntersection() + " is: " + neighbor.getTravelTime());
 						double asCrowFliesToGoalDist = toIntersection.distance(goalNode);
 						double aStarHeurDist = pathFromStartNode + asCrowFliesToGoalDist;
 						double currentDist = distances.get(toIntersection);
-						
+						System.out.println("Straight path to goal is: " + asCrowFliesToGoalDist);
+						System.out.println("aStarHeurDist is: " + aStarHeurDist);
+						System.out.println("Current distance is: " + currentDist);
 						if (aStarHeurDist < currentDist) {
 							
 							distances.put(toIntersection, aStarHeurDist);
-							parents.put(neighbor.getToIntersection(), currentNode);
+							roadMap.put(neighbor.getToIntersection(), neighbor);
 							HashMap<MapIntersection, Double> nextNodeWithDist = 
 									new HashMap<MapIntersection, Double>();
 							nextNodeWithDist.put(toIntersection, aStarHeurDist);
 							toProcess.add(nextNodeWithDist);
+							System.out.println("picked as next: " + toIntersection);
 						}
+						System.out.println("************************");
 					}
 				}
 			}
@@ -597,13 +614,15 @@ public class MapGraph {
 		
 		List<GeographicPoint> shortestCycle = 
 				new ArrayList<GeographicPoint>(stops.size()+2);
+		List<MapEdge> cycleRoadsTaken = 
+				new ArrayList<MapEdge>();
 		List<MapIntersection> toVisit = 
 				new ArrayList<MapIntersection>(stops.size());
 		
 		MapIntersection current, bestNext = null;
 		PathObject potentialNextPath, shortestNextPath;
 
-		double totalTravelTime = 0;
+		double totalLength = 0, totalTravelTime = 0;
 		
 		if (start instanceof MapIntersection) {
 			current = (MapIntersection)start;
@@ -672,43 +691,44 @@ public class MapGraph {
 			// greedily go to closest vertex from the vertices left visit
 			for (MapIntersection potentialNext : toVisit) {
 				
-				System.out.println(current + " is current stop in tour");
-				System.out.println(potentialNext + " is potential next stop in tour");
+				//System.out.println(current + " is current stop in tour");
+				//System.out.println(potentialNext + " is potential next stop in tour");
 				offLimits.get(potentialNext.getX()).put(potentialNext.getY(), 0);
 				potentialNextPath = aStarSearch(current, potentialNext, offLimits);
 				offLimits.get(potentialNext.getX()).put(potentialNext.getY(), 1);
 				if (potentialNextPath != null) {
-					System.out.println(potentialNextPath.getPath() + 
-									   " is potential next path in tour");					
+					//System.out.println(potentialNextPath.getPath() + 
+						//			   " is potential next path in tour");					
 					if ( (shortestNextPath == null) || 
-							 (potentialNextPath.getLength() < 
-							  shortestNextPath.getLength()) ) {
-
+							 (potentialNextPath.getTravelTime() < 
+							  shortestNextPath.getTravelTime()) ) {
+							System.out.println("Best is now: " + potentialNextPath.getTravelTime());
 							bestNext = potentialNext;
 							shortestNextPath = potentialNextPath;
-							System.out.println(shortestNextPath.getPath() + 
-											   " is the next path in tour");
+							//System.out.println(shortestNextPath.getPath() + 
+								//			   " is the next path in tour");
 						}
 				}
 			}
 			// add each hop except first (first is already added)
 			for (int i = 1; i < shortestNextPath.getPath().size(); i++) {
-				
-				shortestCycle.add(shortestNextPath.getPath().get(i));
+						
+				shortestCycle.add(shortestNextPath.getPath().get(i));	
+				cycleRoadsTaken.add(shortestNextPath.getRoadsTaken().get(i-1));
 			}
 			// save the path between hops at the appropriate place in the return ArrayList
 			greedyPaths.add(shortestNextPath);
-			totalTravelTime += shortestNextPath.getLength();
+			totalLength += shortestNextPath.getLength();
+			totalTravelTime += shortestNextPath.getTravelTime();
 			toVisit.remove(bestNext);
-			System.out.println("removing " + bestNext + " from toVisit");
 			current = bestNext;
 		}
 		// start is no longer off limits (need to complete the cycle)
 		offLimits.get(start.getX()).put(start.getY(), 0);
-		System.out.println("Before coming home, current is " + current);
 		shortestNextPath = aStarSearch(current, start, offLimits);
 		
-		totalTravelTime += shortestNextPath.getLength();
+		totalLength += shortestNextPath.getLength();
+		totalTravelTime += shortestNextPath.getTravelTime();
 		
 		for (int i = 1; i < shortestNextPath.getPath().size(); i++) {
 
@@ -716,9 +736,11 @@ public class MapGraph {
 		}
 		
 		PathObject shortestCycleObject = 
-				new PathObject(shortestCycle, totalTravelTime);
+				new PathObject(shortestCycle, cycleRoadsTaken, totalLength, totalTravelTime);
 		greedyPaths.add(shortestCycleObject);
 		
+		System.out.println("Total distance traveled is: " + totalLength + " miles");
+		System.out.println("Total travel time is: " + totalTravelTime + " minutes");
 		return greedyPaths;
 	}
 	
@@ -826,18 +848,18 @@ public class MapGraph {
 				
 				if ( !( (i == 0) && (j == metaPath.size()) ) ) {
 					
-					oldLengthOne = greedyPaths.get(i).getLength();
-					oldLengthTwo = greedyPaths.get(j).getLength();
+					oldLengthOne = greedyPaths.get(i).getTravelTime();
+					oldLengthTwo = greedyPaths.get(j).getTravelTime();
 					origLength = oldLengthOne + oldLengthTwo;
 					
 					offLimits.get(startEdgeTwo.getX()).put(startEdgeTwo.getY(), 0);
 					newPathOne = aStarSearch(startEdgeOne, startEdgeTwo, offLimits);
 					offLimits.get(startEdgeTwo.getX()).put(startEdgeTwo.getY(), 1);
-					newLengthOne = newPathOne.getLength();
+					newLengthOne = newPathOne.getTravelTime();
 					offLimits.get(endEdgeTwo.getX()).put(endEdgeTwo.getY(), 0);
 					newPathTwo = aStarSearch(endEdgeOne, endEdgeTwo, offLimits);
 					offLimits.get(endEdgeTwo.getX()).put(endEdgeTwo.getY(), 1);
-					newLengthTwo = newPathTwo.getLength();
+					newLengthTwo = newPathTwo.getTravelTime();
 					swapLength = newLengthOne + newLengthTwo;
 					
 					if (swapLength < origLength) {
@@ -855,13 +877,13 @@ public class MapGraph {
 						
 						for (int k = j; k > i+1; k--) {
 							
-							forwardLength += greedyPaths.get(k-1).getLength();
+							forwardLength += greedyPaths.get(k-1).getTravelTime();
 							offLimits.get(metaPath.get(k-1).getX()).put(metaPath.get(k-1).getY(), 0);
 							reversePath = aStarSearch(metaPath.get(k), 
 													  metaPath.get(k-1),
 													  offLimits);
 							offLimits.get(metaPath.get(k-1).getX()).put(metaPath.get(k-1).getY(), 1);
-							reverseLength += reversePath.getLength();
+							reverseLength += reversePath.getTravelTime();
 							reversePathObjects.add(reversePath);
 						}
 						

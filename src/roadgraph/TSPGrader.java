@@ -152,11 +152,10 @@ public class TSPGrader implements Runnable {
             		testStopsOne, 
             		noOffLimits);
             /*
-        	List<GeographicPoint> testStopsTwo = new ArrayList<GeographicPoint>();
-            runTest(2, "map2.txt", 
-            		"MAP: Example map from the video", 
-            		new GeographicPoint(7, 3), 
-            		testStopsTwo,
+            runTest(2, "mixedLine.txt", 
+            		"MAP: Straight line with mixed road types", 
+            		new GeographicPoint(0, 0), 
+            		testStopsOne,
             		noOffLimits);
 
             runTest(3, "map3.txt", 

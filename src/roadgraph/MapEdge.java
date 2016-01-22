@@ -56,15 +56,15 @@ public class MapEdge {
 								   "This may make results innacurate");
 			}
 			
-			setTravelTime(speedLimit);
+			setTravelTime(this.speedLimit);
+			System.out.println("Length of " + this.roadName + " is " + this.length);
+			System.out.println("Travel time " + this.roadName + " is " + travelTime);
 		}
 		
 		// to support changing the speed limit on this road
 		public void setTravelTime(double speedLimit) {
 			
 			this.travelTime = (length / speedLimit)*60; // gives time in minutes
-			System.out.println("length of " + roadName +  " is " + length);
-			System.out.println("travel time for " + roadName +  " is " + travelTime);
 		}
 		
 		public MapIntersection getFromIntersection() {

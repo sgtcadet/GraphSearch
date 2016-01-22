@@ -19,12 +19,19 @@ import geography.GeographicPoint;
 public class PathObject {
 
 	private List<GeographicPoint> path;
+	// having the list of nodes is redundant if you have the list of 
+	// roads taken, but I needed to play nice with the "grader".
+	private List<MapEdge> roadsTaken;
 	private double length;
 	private double travelTime;
 	
-	public PathObject(List<GeographicPoint> path, double length, double travelTime) {
+	public PathObject(List<GeographicPoint> path, 
+					  List<MapEdge> roadsTaken,
+					  double length, 
+					  double travelTime) {
 		
 		this.path = path;
+		this.roadsTaken = roadsTaken;
 		this.length = length;
 		this.travelTime = travelTime;
 	}
@@ -32,6 +39,11 @@ public class PathObject {
 	public List<GeographicPoint> getPath() {
 		
 		return path;
+	}
+	
+	public List<MapEdge> getRoadsTaken() {
+		
+		return roadsTaken;
 	}
 	
 	public double getLength() {
