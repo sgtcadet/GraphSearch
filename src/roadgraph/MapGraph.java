@@ -228,15 +228,16 @@ public class MapGraph {
 			
 			currentNode = toProcess.remove();
 			nodeSearched.accept(currentNode);
-			
+			System.out.println(currentNode);
 			if (currentNode.equals(goalNode)) {
 				// call the helper method to return shortest path
 				return codifyPath(startNode, goalNode, parents);
 			}
 				
 			currentNeighbors = currentNode.getNeighbors();
+			
 			for (MapEdge neighbor : currentNeighbors) {
-					
+				
 				if (!visited.contains(neighbor.getToIntersection())){
 					
 					visited.add(neighbor.getToIntersection());
@@ -500,13 +501,13 @@ public class MapGraph {
 		
 		// need to change the comparable interface for toProcess to order by
 		// the value of the key of the hashmap (ascending);
-		
 		while (!toProcess.isEmpty()) {
 			
 			currentNodeWithDist = toProcess.remove();
 			currentNode = (MapIntersection)currentNodeWithDist.keySet().toArray()[0];
 			nodeSearched.accept(currentNode);
 			
+			System.out.println(currentNode + " is the current aStarSearch hop");
 			if (!visited.contains(currentNodeWithDist)) {
 				
 				visited.add(currentNode);
@@ -517,18 +518,25 @@ public class MapGraph {
 				}
 				
 				currentNeighbors = currentNode.getNeighbors();
+				
 				for (MapEdge neighbor : currentNeighbors) {
 
 					MapIntersection toIntersection = neighbor.getToIntersection();
-					
+					System.out.println(toIntersection + " is the potential next aStarHop");
 					// it the intersection hasn't been visited and is not off limits,
 					// check if the distance to it is better than the current next distance.
-					if (!visited.contains(toIntersection) &&
-						(offLimits.containsKey(toIntersection.getX()) && 
-						 offLimits.get(toIntersection.getX()).containsKey(toIntersection.getY()) &&
-					     offLimits.get(toIntersection.getX()).get(toIntersection.getY()) != 1) ) {
+					boolean xInLimitsMap, yInLimitsMap = false, isOffLimits = false;
+					xInLimitsMap = offLimits.containsKey(toIntersection.getX());
+					if (xInLimitsMap) {
+						yInLimitsMap = offLimits.get(toIntersection.getX()).containsKey(toIntersection.getY());
+						if (yInLimitsMap) {
+							isOffLimits = (offLimits.get(toIntersection.getX()).get(toIntersection.getY())==1);
+						}
+					}
+					System.out.println(!visited.contains(toIntersection) + " that its not visited");
+					System.out.println(!isOffLimits + " that its not illegal");
+					if (!visited.contains(toIntersection) && !isOffLimits) {
 						// initialize values to make the logic easier to read
-						System.out.println("Got here");
 						double pathFromStartNode = 
 								distances.get(currentNode) + neighbor.getTravelTime();
 						double asCrowFliesToGoalDist = toIntersection.distance(goalNode);
@@ -657,23 +665,30 @@ public class MapGraph {
 		
 		shortestCycle.add(current);
 		
-		while (toVisit.size() > 1) {
+		while (toVisit.size() > 0) {
 			
 			shortestNextPath = null;
-			System.out.println(toVisit.size());
+			System.out.println("stops left to visit: " + toVisit.size());
 			// greedily go to closest vertex from the vertices left visit
 			for (MapIntersection potentialNext : toVisit) {
 				
-				System.out.println(current + " is current stop");
-				System.out.println(potentialNext + " is potential next stop");
+				System.out.println(current + " is current stop in tour");
+				System.out.println(potentialNext + " is potential next stop in tour");
+				offLimits.get(potentialNext.getX()).put(potentialNext.getY(), 0);
 				potentialNextPath = aStarSearch(current, potentialNext, offLimits);
-				System.out.print(potentialNextPath.getPath() + "is potential next path");
-				if ( (shortestNextPath == null) || 
-					 (potentialNextPath.getLength() < 
-					  shortestNextPath.getLength()) ) {
+				offLimits.get(potentialNext.getX()).put(potentialNext.getY(), 1);
+				if (potentialNextPath != null) {
+					System.out.println(potentialNextPath.getPath() + 
+									   " is potential next path in tour");					
+					if ( (shortestNextPath == null) || 
+							 (potentialNextPath.getLength() < 
+							  shortestNextPath.getLength()) ) {
 
-					bestNext = potentialNext;
-					shortestNextPath = potentialNextPath;
+							bestNext = potentialNext;
+							shortestNextPath = potentialNextPath;
+							System.out.println(shortestNextPath.getPath() + 
+											   " is the next path in tour");
+						}
 				}
 			}
 			// add each hop except first (first is already added)
@@ -685,19 +700,20 @@ public class MapGraph {
 			greedyPaths.add(shortestNextPath);
 			totalTravelTime += shortestNextPath.getLength();
 			toVisit.remove(bestNext);
+			System.out.println("removing " + bestNext + " from toVisit");
 			current = bestNext;
 		}
 		// start is no longer off limits (need to complete the cycle)
 		offLimits.get(start.getX()).put(start.getY(), 0);
+		System.out.println("Before coming home, current is " + current);
 		shortestNextPath = aStarSearch(current, start, offLimits);
 		
 		totalTravelTime += shortestNextPath.getLength();
 		
-		for (int i = 0; i < shortestNextPath.getPath().size()-1; i++) {
+		for (int i = 1; i < shortestNextPath.getPath().size(); i++) {
 
 			shortestCycle.add(shortestNextPath.getPath().get(i));
 		}
-		shortestCycle.add(start);
 		
 		PathObject shortestCycleObject = 
 				new PathObject(shortestCycle, totalTravelTime);
