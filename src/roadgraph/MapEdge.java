@@ -2,6 +2,8 @@ package roadgraph;
 
 /** A class that represents a road in a graph that represents a geographic location. 
  * 
+ * Holds length in miles, speed limit in miles per hour, and travel time in minutes.
+ * Constructor assumes length is given in kilometers.
  * @author ryanwilliamconnor
  */
 public class MapEdge {
@@ -10,9 +12,9 @@ public class MapEdge {
 		private MapIntersection toIntersection;
 		private String roadName;
 		private String roadType;
-		private double length;
-		private double speedLimit;
-		private double travelTime;
+		private double length; // in miles
+		private double speedLimit; // in miles per hour
+		private double travelTime; // in seconds
 		
 		public MapEdge(MapIntersection fromIntersection,
 				       MapIntersection toIntersection,
@@ -22,7 +24,7 @@ public class MapEdge {
 			this.toIntersection = toIntersection;
 			this.roadName = roadName;
 			this.roadType = roadType;
-			this.length = length;
+			this.length = length*0.621; // assumes length is given in kilometers
 			
 			if (roadType.equals("motorway")) {
 				this.speedLimit = 70.0;
@@ -60,7 +62,9 @@ public class MapEdge {
 		// to support changing the speed limit on this road
 		public void setTravelTime(double speedLimit) {
 			
-			this.travelTime = length / speedLimit;
+			this.travelTime = (length / speedLimit)*60; // gives time in minutes
+			System.out.println("length of " + roadName +  " is " + length);
+			System.out.println("travel time for " + roadName +  " is " + travelTime);
 		}
 		
 		public MapIntersection getFromIntersection() {
