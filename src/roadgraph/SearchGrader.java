@@ -82,7 +82,11 @@ public class SearchGrader implements Runnable {
      * @param start The point to start from
      * @param end The point to end at
      */
-    public void judge(int i, MapGraph result, CorrectAnswer corr, GeographicPoint start, GeographicPoint end) {
+    public void judge(int i, 
+    			      MapGraph result, 
+    				  CorrectAnswer corr, 
+    				  GeographicPoint start, 
+    				  GeographicPoint end) {
         // Correct if same number of vertices
         feedback += appendFeedback(i * 3 - 2, "Testing vertex count");
         if (result.getNumVertices() != corr.vertices) {
@@ -104,20 +108,23 @@ public class SearchGrader implements Runnable {
         // Correct if paths are same size and have same elements
         feedback += appendFeedback(i * 3, "Testing BFS");
         PathObject graderPath = result.bfs(start, end);
-        List<GeographicPoint> bfs = graderPath.getPath();
-        if (bfs == null) {
+        if (graderPath == null) {
             if (corr.path == null) {
                 feedback += "PASSED.";
                 correct++;
             } else {
-                feedback += "FAILED. Your implementation returned null; expected \n" + printBFSList(corr.path) + ".";
+                feedback += "FAILED. Your implementation returned null; expected \n" + 
+                		    printBFSList(corr.path) + ".";
             }
         } else if (corr.path == null) {
-            feedback += "FAILED. Your implementation returned \n" + printBFSList(bfs) + "; expected null.";
-        } else if (!printBFSList(corr.path).equals(printBFSList(bfs))) {
-            feedback += "FAILED. Expected: \n" + printBFSList(corr.path) + "Got: \n" + printBFSList(bfs);
-            if (bfs.size() != corr.path.size()) {
-                feedback += "Your result has size " + bfs.size() + "; expected " + corr.path.size() + ".";
+            feedback += "FAILED. Your implementation returned \n" + 
+            			printBFSList(graderPath.getPath()) + "; expected null.";
+        } else if (!printBFSList(corr.path).equals(printBFSList(graderPath.getPath()))) {
+            feedback += "FAILED. Expected: \n" + printBFSList(corr.path) + 
+            		    "Got: \n" + printBFSList(graderPath.getPath());
+            if (graderPath.getPath().size() != corr.path.size()) {
+                feedback += "Your result has size " + graderPath.getPath().size() + 
+                		    "; expected " + corr.path.size() + ".";
             } else {
                 feedback += "Correct size, but incorrect path.";
             }
@@ -144,13 +151,23 @@ public class SearchGrader implements Runnable {
         correct = 0;
 
         try {
-            runTest(1, "map1.txt", "Straight line (0->1->2->3->...)", new GeographicPoint(0, 0), new GeographicPoint(6, 6));
+            runTest(1, "map1.txt", 
+            		"Straight line (0->1->2->3->...)", 
+            		new GeographicPoint(0, 0), 
+            		new GeographicPoint(6, 6));
 
-            runTest(2, "map2.txt", "Same as above (searching from 6 to 0)", new GeographicPoint(6, 6), new GeographicPoint(0, 0));
+            runTest(2, "map2.txt", 
+            		"Same as above (searching from 6 to 0)", 
+            		new GeographicPoint(6, 6), 
+            		new GeographicPoint(0, 0));
 
-            runTest(3, "map3.txt", "Square graph - Each edge has 2 nodes", new GeographicPoint(0, 0), new GeographicPoint(1, 2));
+            runTest(3, "map3.txt", "Square graph - Each edge has 2 nodes", 
+            		new GeographicPoint(0, 0), 
+            		new GeographicPoint(1, 2));
 
-            runTest(4, "ucsd.map", "UCSD MAP: Intersections around UCSD", new GeographicPoint(32.8756538, -117.2435715), new GeographicPoint(32.8742087, -117.2381344));
+            runTest(4, "ucsd.map", "UCSD MAP: Intersections around UCSD", 
+            		new GeographicPoint(32.8756538, -117.2435715), 
+            		new GeographicPoint(32.8742087, -117.2381344));
 
             if (correct == TESTS)
                 feedback = "All tests passed. Great job!" + feedback;

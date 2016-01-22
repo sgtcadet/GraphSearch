@@ -98,7 +98,9 @@ public class RouteService {
     public boolean isRouteDisplayed() {
     	return routeLine != null;
     }
-    public boolean displayRoute(geography.GeographicPoint start, geography.GeographicPoint end, int toggle) {
+    public boolean displayRoute(geography.GeographicPoint start, 
+    							geography.GeographicPoint end, 
+    							int toggle) {
         if(routeLine == null) {
         	if(markerManager.getVisualization() != null) {
         		markerManager.clearVisualization();
@@ -107,22 +109,30 @@ public class RouteService {
         	if(toggle == RouteController.DIJ || toggle == RouteController.A_STAR ||
         			toggle == RouteController.BFS) {
         		markerManager.initVisualization();
-            	Consumer<geography.GeographicPoint> nodeAccepter = markerManager.getVisualization()::acceptPoint;
+            	Consumer<geography.GeographicPoint> nodeAccepter = 
+            			markerManager.getVisualization()::acceptPoint;
             	PathObject servicePath = null;
             	List<geography.GeographicPoint> path = null;
             	if (toggle == RouteController.BFS) {
-            		servicePath = markerManager.getDataSet().getGraph().bfs(start, end, nodeAccepter);
+            		servicePath = 
+            				markerManager.getDataSet().getGraph().bfs(start, 
+            														  end, 
+            														  nodeAccepter);
             		path = servicePath.getPath();
             	}
             	else if (toggle == RouteController.DIJ) {
-            		servicePath = markerManager.getDataSet().getGraph().dijkstra(start, end, nodeAccepter);
+            		servicePath = 
+            				markerManager.getDataSet().getGraph().dijkstra(start, 
+            															   end, 
+            															   nodeAccepter);
             		path = servicePath.getPath();
             	}
             	else if (toggle == RouteController.A_STAR) {
-            		servicePath = markerManager.getDataSet().getGraph().aStarSearch(start, 
-            																		end, 
-            																		nodeAccepter,
-            																		new HashMap<GeographicPoint,Integer>());
+            		servicePath = 
+            				markerManager.getDataSet().getGraph().aStarSearch(start, 
+            																  end, 
+            																  nodeAccepter,
+            																  new HashMap<Double,HashMap<Double,Integer>>());
             		path = servicePath.getPath();
             	}
 
@@ -170,7 +180,8 @@ public class RouteService {
         	next = path.get(i+1);
 
         	if(markerManager.getDataSet().getRoads().containsKey(curr)) {
-        		HashSet<geography.RoadSegment> segments = markerManager.getDataSet().getRoads().get(curr);
+        		HashSet<geography.RoadSegment> segments = 
+        				markerManager.getDataSet().getRoads().get(curr);
         		Iterator<geography.RoadSegment> it = segments.iterator();
 
         		// get segments which are
