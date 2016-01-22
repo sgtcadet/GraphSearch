@@ -424,7 +424,7 @@ public class MapGraph {
 	 */
 	public PathObject aStarSearch(GeographicPoint start, 
 								  GeographicPoint goal,
-								  HashMap<GeographicPoint, Integer> offLimits) {
+								  HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		// Dummy variable for calling the search algorithms
         Consumer<GeographicPoint> temp = (x) -> {};
         return aStarSearch(start, goal, temp, offLimits);
@@ -441,7 +441,7 @@ public class MapGraph {
 	public PathObject aStarSearch(GeographicPoint start, 
 								  GeographicPoint goal,
 								  Consumer<GeographicPoint> nodeSearched,
-								  HashMap<GeographicPoint, Integer> offLimits) {
+								  HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		// if the start or goal do not exist in the graph, return null
 		if ( (graph.get(start.x) == null) ||
 				  (graph.get(start.x).get(start.y) == null) ) {
@@ -474,7 +474,8 @@ public class MapGraph {
 		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
 		HashMap<MapIntersection,MapIntersection> parents =
 				new HashMap<MapIntersection,MapIntersection>(numVertices*2);
-		HashMap<MapIntersection, Double> distances = new HashMap<MapIntersection, Double>(numVertices*2);
+		HashMap<MapIntersection,Double> distances = 
+				new HashMap<MapIntersection, Double>(numVertices*2);
 		HashMap<MapIntersection,Double> currentNodeWithDist;
 		MapIntersection currentNode;
 		List<MapEdge> currentNeighbors;
@@ -493,7 +494,7 @@ public class MapGraph {
 			}
 		}
 		// keep track of parents while doing a Dijkstra BFS with a priority queue
-		currentNodeWithDist = new HashMap<MapIntersection, Double>();
+		currentNodeWithDist = new HashMap<MapIntersection,Double>();
 		currentNodeWithDist.put(startNode, distances.get(startNode));
 		toProcess.add(currentNodeWithDist);
 		
@@ -520,9 +521,14 @@ public class MapGraph {
 
 					MapIntersection toIntersection = neighbor.getToIntersection();
 					
+					// it the intersection hasn't been visited and is not off limits,
+					// check if the distance to it is better than the current next distance.
 					if (!visited.contains(toIntersection) &&
-						offLimits.get(toIntersection) != 1) {
+						(offLimits.containsKey(toIntersection.getX()) && 
+						 offLimits.get(toIntersection.getX()).containsKey(toIntersection.getY()) &&
+					     offLimits.get(toIntersection.getX()).get(toIntersection.getY()) != 1) ) {
 						// initialize values to make the logic easier to read
+						System.out.println("Got here");
 						double pathFromStartNode = 
 								distances.get(currentNode) + neighbor.getTravelTime();
 						double asCrowFliesToGoalDist = toIntersection.distance(goalNode);
@@ -561,7 +567,7 @@ public class MapGraph {
 	public ArrayList<PathObject> greedyShortestCycle(GeographicPoint start, 
 							    	List<GeographicPoint> stops,
 								    Consumer<GeographicPoint> nodeSearched,
-								    HashMap<GeographicPoint,Integer> offLimits) {
+								    HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		
 		ArrayList<PathObject> greedyPaths = new ArrayList<PathObject>();
 		
@@ -587,29 +593,65 @@ public class MapGraph {
 				new ArrayList<MapIntersection>(stops.size());
 		
 		MapIntersection current, bestNext = null;
-		PathObject pathToNext, shortestPathToNext;
+		PathObject potentialNextPath, shortestNextPath;
 
 		double totalTravelTime = 0;
 		
 		if (start instanceof MapIntersection) {
 			current = (MapIntersection)start;
-			offLimits.put(start, 1);
+			HashMap<Double,Integer> offLimitsY = new HashMap<Double,Integer>();
+			double startX = graph.get(start.getX()).get(start.getY()).getX();
+			double startY = graph.get(start.getX()).get(start.getY()).getY();
+			if (offLimits.containsKey(startX)) {
+				offLimits.put(startX, offLimitsY);
+			}
+			else {
+				offLimitsY.put(startY, 1);
+				offLimits.put(startX, offLimitsY);
+			}
 		}
 		else {
 			current = graph.get(start.x).get(start.y);
-			offLimits.put(graph.get(start.x).get(start.y), 1);
+			HashMap<Double,Integer> offLimitsY = new HashMap<Double,Integer>();
+			double startX = graph.get(start.getX()).get(start.getY()).getX();
+			double startY = graph.get(start.getX()).get(start.getY()).getY();
+			if (offLimits.containsKey(startX)) {
+				offLimits.put(startX, offLimitsY);
+			}
+			else {
+				offLimitsY.put(startY, 1);
+				offLimits.put(startX, offLimitsY);
+			}
 		}
 			
 		if (stops.get(0) instanceof MapIntersection) {
 			for (GeographicPoint stop : stops) {
 				toVisit.add((MapIntersection)stop);
-				offLimits.put(stop, 1);
+				HashMap<Double,Integer> offLimitsY = new HashMap<Double,Integer>();
+				double stopX = graph.get(stop.getX()).get(stop.getY()).getX();
+				double stopY = graph.get(stop.getX()).get(stop.getY()).getY();
+				if (offLimits.containsKey(stopX)) {
+					offLimits.put(stopX, offLimitsY);
+				}
+				else {
+					offLimitsY.put(stopY, 1);
+					offLimits.put(stopX, offLimitsY);
+				}
 			}
 		}
 		else {
 			for (GeographicPoint stop : stops) {
 				toVisit.add(graph.get(stop.x).get(stop.y));
-				offLimits.put(graph.get(stop.x).get(stop.y), 1);
+				HashMap<Double,Integer> offLimitsY = new HashMap<Double,Integer>();
+				double stopX = graph.get(stop.getX()).get(stop.getY()).getX();
+				double stopY = graph.get(stop.getX()).get(stop.getY()).getY();
+				if (offLimits.containsKey(stopX)) {
+					offLimits.put(stopX, offLimitsY);
+				}
+				else {
+					offLimitsY.put(stopY, 1);
+					offLimits.put(stopX, offLimitsY);
+				}
 			}
 		}
 		
@@ -617,41 +659,43 @@ public class MapGraph {
 		
 		while (toVisit.size() > 1) {
 			
-			shortestPathToNext = null;
-			
-			// greedily go to closet vertex from the vertices left visit
+			shortestNextPath = null;
+			System.out.println(toVisit.size());
+			// greedily go to closest vertex from the vertices left visit
 			for (MapIntersection potentialNext : toVisit) {
 				
-				pathToNext = aStarSearch(current, potentialNext, offLimits);
-				
-				if ( (shortestPathToNext == null) || 
-					 (pathToNext.getLength() < 
-					  shortestPathToNext.getLength()) ) {
+				System.out.println(current + " is current stop");
+				System.out.println(potentialNext + " is potential next stop");
+				potentialNextPath = aStarSearch(current, potentialNext, offLimits);
+				System.out.print(potentialNextPath.getPath() + "is potential next path");
+				if ( (shortestNextPath == null) || 
+					 (potentialNextPath.getLength() < 
+					  shortestNextPath.getLength()) ) {
 
 					bestNext = potentialNext;
-					shortestPathToNext = pathToNext;
+					shortestNextPath = potentialNextPath;
 				}
 			}
 			// add each hop except first (first is already added)
-			for (int i = 1; i < shortestPathToNext.getPath().size(); i++) {
+			for (int i = 1; i < shortestNextPath.getPath().size(); i++) {
 				
-				shortestCycle.add(shortestPathToNext.getPath().get(i));
+				shortestCycle.add(shortestNextPath.getPath().get(i));
 			}
 			// save the path between hops at the appropriate place in the return ArrayList
-			greedyPaths.add(shortestPathToNext);
-			totalTravelTime += shortestPathToNext.getLength();
+			greedyPaths.add(shortestNextPath);
+			totalTravelTime += shortestNextPath.getLength();
 			toVisit.remove(bestNext);
 			current = bestNext;
 		}
 		// start is no longer off limits (need to complete the cycle)
-		offLimits.put(start,  0);
-		shortestPathToNext = aStarSearch(current, start, offLimits);
+		offLimits.get(start.getX()).put(start.getY(), 0);
+		shortestNextPath = aStarSearch(current, start, offLimits);
 		
-		totalTravelTime += shortestPathToNext.getLength();
+		totalTravelTime += shortestNextPath.getLength();
 		
-		for (int i = 0; i < shortestPathToNext.getPath().size()-1; i++) {
+		for (int i = 0; i < shortestNextPath.getPath().size()-1; i++) {
 
-			shortestCycle.add(shortestPathToNext.getPath().get(i));
+			shortestCycle.add(shortestNextPath.getPath().get(i));
 		}
 		shortestCycle.add(start);
 		
@@ -676,7 +720,7 @@ public class MapGraph {
 	 */
 	public ArrayList<PathObject> greedyShortestCycle(GeographicPoint start,
 									List<GeographicPoint> stops,
-									HashMap<GeographicPoint,Integer> offLimits) {
+									HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		// Dummy variable for calling the search algorithms
         Consumer<GeographicPoint> temp = (x) -> {};
         return greedyShortestCycle(start, stops, temp, offLimits);
@@ -695,7 +739,7 @@ public class MapGraph {
 	 */
 	public PathObject twoOptShortestCycle(GeographicPoint start,
 										  List<GeographicPoint> stops,
-										  HashMap<GeographicPoint,Integer> offLimits) {
+										  HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		
 		PathObject candidateCycle;	
 		PathObject shortestCycle;
@@ -718,13 +762,20 @@ public class MapGraph {
 			
 			if (stops.contains(location)) {
 				metaPath.add(location);
-				offLimits.put(location, 1);
+				if (offLimits.containsKey(location.getX())) {
+					offLimits.get(location.getX()).put(location.getY(), 1);
+				}
+				else {
+					HashMap<Double,Integer> yCoords = new HashMap<Double,Integer>();
+					offLimits.put(location.getX(), yCoords);
+					offLimits.get(location.getX()).put(location.getY(), 1);
+				}
 			}
 		}
 		metaPath.add(start);
-		offLimits.put(start, 1);
-		
-		shortestCycle = twoOptChecking(greedyPaths, metaPath, shortestCycle, offLimits);
+		// start should be off limits when finding better paths via two-opt
+		offLimits.get(start.getX()).put(start.getY(), 1);
+		//shortestCycle = twoOptChecking(greedyPaths, metaPath, shortestCycle, offLimits);
 		
 		return shortestCycle;
 	}
@@ -740,7 +791,7 @@ public class MapGraph {
 	public PathObject twoOptChecking(ArrayList<PathObject> greedyPaths,
 									 ArrayList<GeographicPoint> metaPath,
 									 PathObject shortestCycle,
-									 HashMap<GeographicPoint,Integer> offLimits) {
+									 HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		
 		GeographicPoint startEdgeOne, endEdgeOne, startEdgeTwo, endEdgeTwo;
 		PathObject newPathOne, newPathTwo, reversePath;
@@ -763,13 +814,13 @@ public class MapGraph {
 					oldLengthTwo = greedyPaths.get(j).getLength();
 					origLength = oldLengthOne + oldLengthTwo;
 					
-					offLimits.put(startEdgeTwo, 0);
+					offLimits.get(startEdgeTwo.getX()).put(startEdgeTwo.getY(), 0);
 					newPathOne = aStarSearch(startEdgeOne, startEdgeTwo, offLimits);
-					offLimits.put(startEdgeTwo, 1);
+					offLimits.get(startEdgeTwo.getX()).put(startEdgeTwo.getY(), 1);
 					newLengthOne = newPathOne.getLength();
-					offLimits.put(endEdgeTwo, 0);
+					offLimits.get(endEdgeTwo.getX()).put(endEdgeTwo.getY(), 0);
 					newPathTwo = aStarSearch(endEdgeOne, endEdgeTwo, offLimits);
-					offLimits.put(endEdgeTwo, 1);
+					offLimits.get(endEdgeTwo.getX()).put(endEdgeTwo.getY(), 1);
 					newLengthTwo = newPathTwo.getLength();
 					swapLength = newLengthOne + newLengthTwo;
 					
@@ -789,11 +840,11 @@ public class MapGraph {
 						for (int k = j; k > i+1; k--) {
 							
 							forwardLength += greedyPaths.get(k-1).getLength();
-							offLimits.put(metaPath.get(k-1), 0);
+							offLimits.get(metaPath.get(k-1).getX()).put(metaPath.get(k-1).getY(), 0);
 							reversePath = aStarSearch(metaPath.get(k), 
 													  metaPath.get(k-1),
 													  offLimits);
-							offLimits.put(metaPath.get(k-1), 1);
+							offLimits.get(metaPath.get(k-1).getX()).put(metaPath.get(k-1).getY(), 1);
 							reverseLength += reversePath.getLength();
 							reversePathObjects.add(reversePath);
 						}

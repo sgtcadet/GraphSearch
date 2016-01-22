@@ -85,7 +85,9 @@ public class AStarGrader implements Runnable {
     public void judge(int i, MapGraph result, CorrectAnswer corr, GeographicPoint start, GeographicPoint end) {
     	// Correct if paths are same length and have the same elements
         feedback += appendFeedback(i, "Running A* from (" + start.getX() + ", " + start.getY() + ") to (" + end.getX() + ", " + end.getY() + ")");
-        PathObject graderObject = result.aStarSearch(start, end, null);
+        PathObject graderObject = result.aStarSearch(start, 
+        											 end,
+        											 new HashMap<Double,HashMap<Double,Integer>>());
         List<GeographicPoint> path = graderObject.getPath();
         if (path == null) {
             if (corr.path == null) {
