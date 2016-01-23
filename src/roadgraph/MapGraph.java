@@ -548,16 +548,18 @@ public class MapGraph {
 						// initialize values to make the logic easier to read
 						double pathFromStartNode = 
 								distances.get(currentNode) + neighbor.getTravelTime();
+						double asCrowFliesToGoalDist = toIntersection.distance(goalNode);
+						double aStarHeurDist = pathFromStartNode + asCrowFliesToGoalDist;
+						double currentDist = distances.get(toIntersection);
+						/*
 						System.out.println("******Start aStar Heuristic Calculation******");
 						System.out.println("Current node is: " + currentNode);
 						System.out.println("Traveled this much so far: " + distances.get(currentNode));
 						System.out.println("Travel time to " + neighbor.getToIntersection() + " is: " + neighbor.getTravelTime());
-						double asCrowFliesToGoalDist = toIntersection.distance(goalNode);
-						double aStarHeurDist = pathFromStartNode + asCrowFliesToGoalDist;
-						double currentDist = distances.get(toIntersection);
 						System.out.println("Straight path to goal is: " + asCrowFliesToGoalDist);
 						System.out.println("aStarHeurDist is: " + aStarHeurDist);
 						System.out.println("Current distance is: " + currentDist);
+						*/
 						if (aStarHeurDist < currentDist) {
 							
 							distances.put(toIntersection, aStarHeurDist);
@@ -566,9 +568,9 @@ public class MapGraph {
 									new HashMap<MapIntersection, Double>();
 							nextNodeWithDist.put(toIntersection, aStarHeurDist);
 							toProcess.add(nextNodeWithDist);
-							System.out.println("picked as next: " + toIntersection);
+							//System.out.println("picked as next: " + toIntersection);
 						}
-						System.out.println("************************");
+						//System.out.println("************************");
 					}
 				}
 			}
@@ -687,7 +689,7 @@ public class MapGraph {
 		while (toVisit.size() > 0) {
 			
 			shortestNextPath = null;
-			System.out.println("stops left to visit: " + toVisit.size());
+			//System.out.println("stops left to visit: " + toVisit.size());
 			// greedily go to closest vertex from the vertices left visit
 			for (MapIntersection potentialNext : toVisit) {
 				
@@ -702,7 +704,7 @@ public class MapGraph {
 					if ( (shortestNextPath == null) || 
 							 (potentialNextPath.getTravelTime() < 
 							  shortestNextPath.getTravelTime()) ) {
-							System.out.println("Best is now: " + potentialNextPath.getTravelTime());
+							//System.out.println("Best is now: " + potentialNextPath.getTravelTime());
 							bestNext = potentialNext;
 							shortestNextPath = potentialNextPath;
 							//System.out.println(shortestNextPath.getPath() + 
@@ -726,6 +728,7 @@ public class MapGraph {
 		// start is no longer off limits (need to complete the cycle)
 		offLimits.get(start.getX()).put(start.getY(), 0);
 		shortestNextPath = aStarSearch(current, start, offLimits);
+		greedyPaths.add(shortestNextPath);
 		
 		totalLength += shortestNextPath.getLength();
 		totalTravelTime += shortestNextPath.getTravelTime();
@@ -739,34 +742,9 @@ public class MapGraph {
 				new PathObject(shortestCycle, cycleRoadsTaken, totalLength, totalTravelTime);
 		greedyPaths.add(shortestCycleObject);
 		
-		System.out.println("Total distance traveled is: " + totalLength + " miles");
-		System.out.println("Total travel time is: " + totalTravelTime + " minutes");
-		System.out.println("Meta path is: ");
-		for (int i = 0; i < shortestCycleObject.getPath().size(); i++) {
-			System.out.print("(" + shortestCycleObject.getPath().get(i).getX() + 
-							 "," + shortestCycleObject.getPath().get(i).getY() + ")");
-			if (i < shortestCycleObject.getPath().size()-1){
-				System.out.print( " -> ");
-			}
-		}
-		System.out.println("");
-		System.out.println("Total path is: ");
-		for (int i = 0; i < greedyPaths.size(); i++) {
-			if (i < greedyPaths.size()-1) {
-				for (int j = 0; j < greedyPaths.get(i).getPath().size()-1; j++) {
-					System.out.print("(" + greedyPaths.get(i).getPath().get(j).getX() + 
-									 "," + greedyPaths.get(i).getPath().get(j).getY() + 
-									 ") take ");
-					System.out.print(greedyPaths.get(i).getRoadsTaken().get(j).getRoadName() +
-									 " to -> ");
-				}
-			}
-			else {
-				System.out.print("(" + greedyPaths.get(i).getPath().get(0).getX() + 
-						         "," + greedyPaths.get(i).getPath().get(0).getY() + ")");
-				System.out.println("");
-			}
-		}
+		printPathInfo(totalLength, totalTravelTime, shortestCycleObject,
+					  start, shortestCycle, greedyPaths);
+		
 		return greedyPaths;
 	}
 	
@@ -801,21 +779,19 @@ public class MapGraph {
 	 * @param stops: A list of locations to visit goal
 	 * @return The shortest tour from start that visits each stop exactly once.
 	 */
-	public PathObject twoOptShortestCycle(GeographicPoint start,
-										  List<GeographicPoint> stops,
-										  HashMap<Double,HashMap<Double,Integer>> offLimits) {
+	public ArrayList<PathObject> twoOptShortestCycle(GeographicPoint start,
+									List<GeographicPoint> stops,
+									HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		
-		PathObject candidateCycle;	
 		PathObject shortestCycle;
 		ArrayList<PathObject> greedyPaths;
 
 		greedyPaths = greedyShortestCycle(start, stops, offLimits);
-		candidateCycle = greedyPaths.get(greedyPaths.size()-1);
-		shortestCycle = candidateCycle;
+		shortestCycle = greedyPaths.get(greedyPaths.size()-1);
 
 		if ( (stops.size() + 1) < 4 ) {
 			
-			return shortestCycle;
+			return greedyPaths;
 		}
 		
 		// PathObjects have an ordered list of ALL intersections in the tour,
@@ -839,22 +815,24 @@ public class MapGraph {
 		metaPath.add(start);
 		// start should be off limits when finding better paths via two-opt
 		offLimits.get(start.getX()).put(start.getY(), 1);
-		//shortestCycle = twoOptChecking(greedyPaths, metaPath, shortestCycle, offLimits);
-		
-		return shortestCycle;
+		greedyPaths = twoOptChecking(greedyPaths, metaPath, offLimits);
+
+		printPathInfo(0, 0, greedyPaths.get(greedyPaths.size()-1),
+					  start, greedyPaths.get(greedyPaths.size()-1).getPath(), greedyPaths);
+		return greedyPaths;
 	}
 	
 	/** Check possible 2-opt combinations of edges for shorter length.
 	 * 
 	 * Helper method for twoOptShortestCycle.
 	 * 
-	 * @param greedyPaths: The current shortest paths.
-	 * @param metaPath: A list of locations to visit goal
+	 * @param greedyPaths: The current shortest paths, with the total path as the last entry
+	 * @param metaPath: A list of just the stops in the current shortest order
+	 * @param shortestCycle 
 	 * @return The shortest tour from start that visits each stop exactly once.
 	 */
-	public PathObject twoOptChecking(ArrayList<PathObject> greedyPaths,
+	public ArrayList<PathObject> twoOptChecking(ArrayList<PathObject> greedyPaths,
 									 ArrayList<GeographicPoint> metaPath,
-									 PathObject shortestCycle,
 									 HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		
 		GeographicPoint startEdgeOne, endEdgeOne, startEdgeTwo, endEdgeTwo;
@@ -862,12 +840,12 @@ public class MapGraph {
 		double oldLengthOne, oldLengthTwo, origLength, 
 			   newLengthOne, newLengthTwo, swapLength;
 			
-		for (int i = 0; i < metaPath.size()-2; i++) {
+		for (int i = 0; i < metaPath.size()-3; i++) {
 				
 			startEdgeOne = metaPath.get(i);
 			endEdgeOne = metaPath.get(i+1);
 			
-			for (int j = i+2; j < metaPath.size(); j++) {
+			for (int j = i+2; j < metaPath.size()-1; j++) {
 				
 				startEdgeTwo = metaPath.get(j);
 				endEdgeTwo = metaPath.get(j+1);
@@ -921,25 +899,82 @@ public class MapGraph {
 						if (swapSave > reverseGain) {
 							
 							greedyPaths.set(i, newPathOne);
+							metaPath.set(i+1, newPathOne.getPath().get(0));
 							
-							for (int k = i; k < j+1; k++) {
+							int iters = 1;
+							for (int k = j; k > i; k--) {
 								
-								if (k == i) {
-									greedyPaths.set(k, newPathTwo);	
+								if (k == j) {
+									greedyPaths.set(k, newPathTwo);
+									metaPath.set(i+1+iters, newPathTwo.getPath().get(0));
 								}
 								else {
+									metaPath.set(i+1+iters, reversePathObjects.get(0).getPath().get(0));
 									greedyPaths.set(k, reversePathObjects.remove(0));
 								}
+								iters++;
 							}
-							shortestCycle = twoOptChecking(greedyPaths, metaPath, 
-														   shortestCycle, offLimits);
+							
+							// do twoOptChecking with the new best path
+							greedyPaths = twoOptChecking(greedyPaths,
+														 metaPath, 
+														 offLimits);
 							break;
 						}
 					}
 				}
 			}
 		}
-		return shortestCycle;
+		return greedyPaths;
+	}
+	
+	public void printPathInfo(double totalLength,
+							  double totalTravelTime,
+							  PathObject shortestCycleObject,
+							  GeographicPoint start,
+							  List<GeographicPoint> stops,
+							  List<PathObject> greedyPaths) {
+		System.out.println("********PRINTING PATH INFO********");
+		System.out.println("Total distance traveled is: " + totalLength + " miles");
+		System.out.println("Total travel time is: " + totalTravelTime + " minutes");
+		System.out.println("Stops in order is: ");
+		for (int i = 0; i < shortestCycleObject.getPath().size(); i++) {
+			if ( shortestCycleObject.getPath().get(i).equals(start) ||
+				 stops.contains(shortestCycleObject.getPath().get(i)) ) {
+		
+				System.out.print("(" + shortestCycleObject.getPath().get(i).getX() + 
+						 "," + shortestCycleObject.getPath().get(i).getY() + ")");
+				
+				if (i < shortestCycleObject.getPath().size()-1){
+					
+					System.out.print( " -> ");
+				}
+			}
+		}
+		System.out.println("");
+		
+		System.out.println("Total path is: ");
+		for (int i = 0; i < greedyPaths.size(); i++) {
+			
+			if (i < greedyPaths.size()-1) {
+				
+				for (int j = 0; j < greedyPaths.get(i).getPath().size()-1; j++) {
+					
+					System.out.print("(" + greedyPaths.get(i).getPath().get(j).getX() + 
+									 "," + greedyPaths.get(i).getPath().get(j).getY() + 
+									 ") take ");
+					System.out.print(greedyPaths.get(i).getRoadsTaken().get(j).getRoadName() +
+									 " to -> ");
+				}
+			}
+			else {
+				
+				System.out.print("(" + greedyPaths.get(i).getPath().get(0).getX() + 
+						         "," + greedyPaths.get(i).getPath().get(0).getY() + ")");
+				System.out.println("");
+			}
+		}
+		System.out.println("********FINISHED PRINTING PATH INFO********");
 	}
 	
 	public static void main(String[] args) {

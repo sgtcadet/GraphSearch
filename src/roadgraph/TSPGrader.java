@@ -95,9 +95,20 @@ public class TSPGrader implements Runnable {
         feedback += appendFeedback(i, "Running greedyShortestCycle from (" + 
         							   start.getX() + ", " + start.getY() + 
         							   ") through " + stops);
-        ArrayList<PathObject> greedyPaths = 
-        		result.greedyShortestCycle(start, stops, offLimits);
-        List<GeographicPoint> path = greedyPaths.get(greedyPaths.size()-1).getPath();
+        
+        ArrayList<PathObject> TSPPaths;
+        List<GeographicPoint> path;
+        
+        if (i < 5) {
+            TSPPaths = result.greedyShortestCycle(start, stops, offLimits);
+            path = TSPPaths.get(TSPPaths.size()-1).getPath();
+        }
+        else {
+            TSPPaths = result.twoOptShortestCycle(start, stops, offLimits);
+            path = TSPPaths.get(TSPPaths.size()-1).getPath();
+        }
+
+
         if (path == null) {
             if (corr.path == null) {
                 feedback += "PASSED.";
@@ -138,44 +149,58 @@ public class TSPGrader implements Runnable {
         correct = 0;
 
         try {
-        	HashMap<Double,HashMap<Double,Integer>> noOffLimits = 
-        			new HashMap<Double,HashMap<Double,Integer>>();
-        	
-        	List<GeographicPoint> testStopsOne = new ArrayList<GeographicPoint>();
+      
+        	List<GeographicPoint> testStopsOneAndTwo = new ArrayList<GeographicPoint>();
         	for (int i = 1; i < 7; i++) {
-            	testStopsOne.add(new GeographicPoint(i, i));
+            	testStopsOneAndTwo.add(new GeographicPoint(i, i));
         	}
         	
             runTest(1, "residentialLine.txt", 
             		"MAP: Straight line with only residential roads", 
             		new GeographicPoint(0, 0), 
-            		testStopsOne, 
-            		noOffLimits);
+            		testStopsOneAndTwo, 
+            		new HashMap<Double,HashMap<Double,Integer>>());
             
             runTest(2, "mixedLine.txt", 
             		"MAP: Straight line with mixed road types", 
             		new GeographicPoint(0, 0), 
-            		testStopsOne,
-            		noOffLimits);
-            /*
-            runTest(3, "map3.txt", 
-            		"MAP: Right triangle (with a little detour)", 
+            		testStopsOneAndTwo,
+            		new HashMap<Double,HashMap<Double,Integer>>());
+            
+        	List<GeographicPoint> testStopsThree = new ArrayList<GeographicPoint>();
+        	for (int i = 1; i < 7; i++) {
+            	testStopsThree.add(new GeographicPoint(i*10, i*10));
+        	}
+            
+            runTest(3, "secondaryStopsLine.txt", 
+            		"MAP: Line with intersections in between stops and mixed road types", 
             		new GeographicPoint(0, 0), 
             		testStopsThree,
-            		noOffLimits);
-
-            runTest(4, "ucsd.map", 
-            		"UCSD MAP: Tour around UCSD", 
-            		new GeographicPoint(32.8709815, -117.2434254), 
-            		testStopsFour,
-            		noOffLimits);
-
+            		new HashMap<Double,HashMap<Double,Integer>>());
+            
+        	List<GeographicPoint> testStopsFourAndFive = new ArrayList<GeographicPoint>();
+            testStopsFourAndFive.add(new GeographicPoint(5, 0));
+            testStopsFourAndFive.add(new GeographicPoint(5, -8));
+            testStopsFourAndFive.add(new GeographicPoint(0, -6));
+            
+            runTest(4, "lectureGreedy.txt", 
+            		"MAP: Simple example from UCSD lecture where 2-opt TSP improves upon greedy TSP", 
+            		new GeographicPoint(0, 0), 
+            		testStopsFourAndFive,
+            		new HashMap<Double,HashMap<Double,Integer>>());
+            
+            runTest(5, "lecture2Opt.txt", 
+            		"MAP: Simple example from UCSD lecture where 2-opt TSP improves upon greedy TSP", 
+            		new GeographicPoint(0, 0), 
+            		testStopsFourAndFive,
+            		new HashMap<Double,HashMap<Double,Integer>>());
+			
             if (correct == TESTS)
                 feedback = "All tests passed. Great job!" + feedback;
             else
                 feedback = "Some tests failed. Check your code for errors, " +
                 		   "then try again: " + feedback;
-			*/
+			
         } catch (Exception e) {
             feedback += "\nError during runtime: " + e;
             e.printStackTrace();

@@ -57,8 +57,8 @@ public class MapEdge {
 			}
 			
 			setTravelTime(this.speedLimit);
-			System.out.println("Length of " + this.roadName + " is " + this.length);
-			System.out.println("Travel time " + this.roadName + " is " + travelTime);
+			//System.out.println("Length of " + this.roadName + " is " + this.length);
+			//System.out.println("Travel time " + this.roadName + " is " + travelTime);
 		}
 		
 		// to support changing the speed limit on this road
