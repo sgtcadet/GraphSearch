@@ -1,0 +1,12 @@
+0 0 5 0 "A to B" residential
+5 0 0 0 "B to A" residential
+0 0 5 -8 "A to D" residential
+5 -8 0 0 "D to A" residential
+0 0 0 -6 "A to C" residential
+0 -6 0 0 "C to A" residential
+5 0 0 -6 "B to C" residential
+0 -6 5 0 "C to B" residential
+5 0 5 -8 "B to D" residential
+5 -8 5 0 "D to B" residential
+5 -8 0 -6 "D to C" residential
+0 -6 5 -8 "C to D" residential

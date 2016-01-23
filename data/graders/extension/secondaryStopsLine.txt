@@ -1,0 +1,41 @@
+0 0 5 5 "MidResidential 1" residential
+5 5 10 10 "Stop Secondary 1" secondary
+5 5 10 10 "Stop Motorway 1" motorway
+10 10 15 15 "MidResidential 2" residential
+10 10 15 15 "MidMotorway 2" motorway
+15 15 20 20 "Stop Secondary 2" secondary
+15 15 20 20 "Stop Motorway 2" motorway
+20 20 25 25 "MidResidential 3" residential
+20 20 25 25 "MidSecondary 3" secondary
+25 25 30 30 "Stop Residential 3" residential
+25 25 30 30 "Stop Motorway 3" motorway
+30 30 35 35 "MidResidential 4" residential
+30 30 35 35 "MidSecondary 4" secondary
+30 30 35 35 "MidMotorway 4" motorway
+35 35 40 40 "Stop Residential 4" residential
+35 35 40 40 "Stop Secondary 4" secondary
+35 35 40 40 "Stop Motorway 4" motorway
+40 40 45 45 "MidSecondary 5" secondary
+45 45 50 50 "Stop Motorway 5" motorway
+50 50 55 55 "MidResidential 6" residential
+50 50 55 55 "MidSecondary 6" secondary
+50 50 55 55 "MidMotorway 6" motorway
+55 55 60 60 "Stop Residential 6" residential
+55 55 60 60 "Stop Secondary 6" secondary
+55 55 60 60 "Stop Motorway 6" motorway
+60 60 12 12 "Mid Home Secondary" secondary
+60 60 12 12 "Mid Home Motorway" motorway
+12 12 0 0 "Home Residential" residential
+12 12 0 0 "Home Secondary" secondary
+0 0 -1 0 "Fake 1" residential
+0 0 -1 0 "Fake 2" secondary
+0 0 -1 0 "Fake 3" motorway
+0 0 -2 0 "Fake 4" residential
+0 0 -2 0 "Fake 5" secondary
+0 0 -2 0 "Fake 6" motorway
+0 0 -3 0 "Fake 7" residential
+0 0 -3 0 "Fake 8" secondary
+12 12 -3 5 "Fake 9" motorway
+10 10 15 14 "Fake 10" residential
+60 60 55 54 "Fake 11" secondary
+30 30 0 0 "Fake 12" motorway
