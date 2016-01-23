@@ -17,7 +17,7 @@ public class TSPGrader implements Runnable {
 
     public int correct;
 
-    private static final int TESTS = 4;
+    private static final int TESTS = 7;
 
     /** Format readable feedback */
     public static String printOutput(double score, String feedback) {

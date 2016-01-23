@@ -817,9 +817,14 @@ public class MapGraph {
 		// start should be off limits when finding better paths via two-opt
 		offLimits.get(start.getX()).put(start.getY(), 1);
 		greedyPaths = twoOptChecking(greedyPaths, metaPath, offLimits);
-
-		printPathInfo(0, 0, greedyPaths.get(greedyPaths.size()-1),
-					  start, greedyPaths.get(greedyPaths.size()-1).getPath(), greedyPaths);
+		
+		printPathInfo(greedyPaths.get(greedyPaths.size()-1).getLength(),
+					  greedyPaths.get(greedyPaths.size()-1).getTravelTime(),
+					  greedyPaths.get(greedyPaths.size()-1),
+					  start,
+					  greedyPaths.get(greedyPaths.size()-1).getPath(),
+					  greedyPaths);
+		
 		return greedyPaths;
 	}
 	
@@ -838,9 +843,12 @@ public class MapGraph {
 		
 		GeographicPoint startEdgeOne, endEdgeOne, startEdgeTwo, endEdgeTwo;
 		PathObject newPathOne, newPathTwo, reversePath;
-		double oldLengthOne, oldLengthTwo, origLength, 
+		double oldTimeOne, oldTimeTwo, origTime, 
+			   newTimeOne, newTimeTwo, swapTime,
+			   oldLengthOne, oldLengthTwo, origLength,
 			   newLengthOne, newLengthTwo, swapLength;
-			
+		
+		edgeOne:
 		for (int i = 0; i < metaPath.size()-3; i++) {
 				
 			startEdgeOne = metaPath.get(i);
@@ -853,27 +861,43 @@ public class MapGraph {
 				
 				if ( !( (i == 0) && (j == metaPath.size()) ) ) {
 					
-					oldLengthOne = greedyPaths.get(i).getTravelTime();
-					oldLengthTwo = greedyPaths.get(j).getTravelTime();
+					// can decide if the new path is a better path based on 
+					// length or travel time. currently decided by travel time
+					oldTimeOne = greedyPaths.get(i).getTravelTime();
+					oldLengthOne = greedyPaths.get(i).getLength();
+					
+					oldTimeTwo = greedyPaths.get(j).getTravelTime();
+					oldLengthTwo = greedyPaths.get(j).getLength();
+					
+					origTime = oldTimeOne + oldTimeTwo;
 					origLength = oldLengthOne + oldLengthTwo;
 					
 					offLimits.get(startEdgeTwo.getX()).put(startEdgeTwo.getY(), 0);
 					newPathOne = aStarSearch(startEdgeOne, startEdgeTwo, offLimits);
 					offLimits.get(startEdgeTwo.getX()).put(startEdgeTwo.getY(), 1);
-					newLengthOne = newPathOne.getTravelTime();
+					newTimeOne = newPathOne.getTravelTime();
+					newLengthOne = newPathOne.getLength();
+					
 					offLimits.get(endEdgeTwo.getX()).put(endEdgeTwo.getY(), 0);
 					newPathTwo = aStarSearch(endEdgeOne, endEdgeTwo, offLimits);
 					offLimits.get(endEdgeTwo.getX()).put(endEdgeTwo.getY(), 1);
-					newLengthTwo = newPathTwo.getTravelTime();
+					newTimeTwo = newPathTwo.getTravelTime();
+					newLengthTwo = newPathTwo.getLength();
+					
+					swapTime = newTimeOne + newTimeTwo;
 					swapLength = newLengthOne + newLengthTwo;
 					
-					if (swapLength < origLength) {
+					if (swapTime < origTime) {
 						
-						double swapSave, forwardLength, reverseLength, reverseGain;
+						double swapTimeSave, forwardTime, reverseTime, reverseTimeGain,
+							   swapLengthSave, forwardLength, reverseLength, reverseLengthGain;
 						
-						swapSave = origLength - swapLength;
+						swapTimeSave = origTime - swapTime;
+						swapLengthSave = origLength - swapLength;
 						// calculate needed reverse paths, which could be
 						// different because of, for example, one way streets.
+						forwardTime = 0;
+						reverseTime = 0;
 						forwardLength = 0;
 						reverseLength = 0;
 						
@@ -882,23 +906,29 @@ public class MapGraph {
 						
 						for (int k = j; k > i+1; k--) {
 							
-							forwardLength += greedyPaths.get(k-1).getTravelTime();
+							forwardTime += greedyPaths.get(k-1).getTravelTime();
+							forwardLength += greedyPaths.get(k-1).getLength();
 							offLimits.get(metaPath.get(k-1).getX()).put(metaPath.get(k-1).getY(), 0);
 							reversePath = aStarSearch(metaPath.get(k), 
 													  metaPath.get(k-1),
 													  offLimits);
 							offLimits.get(metaPath.get(k-1).getX()).put(metaPath.get(k-1).getY(), 1);
-							reverseLength += reversePath.getTravelTime();
+							reverseTime += reversePath.getTravelTime();
+							reverseLength += reversePath.getLength();
 							reversePathObjects.add(reversePath);
 						}
 						
-						reverseGain = reverseLength - forwardLength;
-						// compare the distance gained by the reverse path to the
-						// distance saved by the swap.  if we saved more, make this
+						reverseTimeGain = reverseTime - forwardTime;
+						reverseLengthGain = reverseLength - forwardLength;
+						// compare the time gained by the reverse path to the
+						// time saved by the swap.  if we saved more, make this
 						// 2-opt the new greedyPath (which involves setting both
-						// the 2-opt paths and the new reverse paths).
-						if (swapSave > reverseGain) {
+						// the 2-opt paths and the new reverse paths for each of:
+						// 1) the meta path, 2) the sub paths, and 3) the total path).
+						// this is the place to change the decision to length, if wanted.
+						if (swapTimeSave > reverseTimeGain) {
 							
+							// set the new meta path, sub path, and total path
 							greedyPaths.set(i, newPathOne);
 							metaPath.set(i+1, newPathOne.getPath().get(0));
 							
@@ -906,21 +936,54 @@ public class MapGraph {
 							for (int k = j; k > i; k--) {
 								
 								if (k == j) {
-									greedyPaths.set(k, newPathTwo);
+									
 									metaPath.set(i+1+iters, newPathTwo.getPath().get(0));
+									greedyPaths.set(k, newPathTwo);
 								}
 								else {
+	
 									metaPath.set(i+1+iters, reversePathObjects.get(0).getPath().get(0));
 									greedyPaths.set(k, reversePathObjects.remove(0));
 								}
 								iters++;
 							}
 							
+							// construct the new total path				
+							int totalPathIndex = greedyPaths.size()-1;
+							
+							List<GeographicPoint> totalPath = new ArrayList<GeographicPoint>();
+							List<MapEdge> totalRoadList = new ArrayList<MapEdge>();
+							
+							double totalPathLength = greedyPaths.get(totalPathIndex).getLength();
+							totalPathLength = totalPathLength + reverseLengthGain - swapLengthSave;
+							
+							double totalPathTime = greedyPaths.get(totalPathIndex).getTravelTime();
+							totalPathTime = totalPathTime + reverseTimeGain - swapTimeSave;
+							
+							for (int k = 0; k < totalPathIndex; k++) {
+								
+								for (int m = 0; m < greedyPaths.get(k).getPath().size()-1; m++) {
+									
+									totalPath.add(greedyPaths.get(k).getPath().get(m));
+									totalRoadList.add(greedyPaths.get(k).getRoadsTaken().get(m));
+								}
+							}
+							// add start to complete the cycle
+							totalPath.add(greedyPaths.get(0).getPath().get(0));
+							
+							PathObject totalPathObject = 
+									new PathObject(totalPath, 
+												   totalRoadList, 
+												   totalPathLength,
+												   totalPathTime);
+							
+							greedyPaths.set(greedyPaths.size()-1, totalPathObject);
+							
 							// do twoOptChecking with the new best path
 							greedyPaths = twoOptChecking(greedyPaths,
 														 metaPath, 
 														 offLimits);
-							break;
+							break edgeOne;
 						}
 					}
 				}
@@ -976,10 +1039,12 @@ public class MapGraph {
 							  GeographicPoint start,
 							  List<GeographicPoint> stops,
 							  List<PathObject> greedyPaths) {
+		
 		System.out.println("********PRINTING PATH INFO********");
 		System.out.println("Total distance traveled is: " + totalLength + " miles");
 		System.out.println("Total travel time is: " + totalTravelTime + " minutes");
 		System.out.println("Stops in order is: ");
+		
 		for (int i = 0; i < shortestCycleObject.getPath().size(); i++) {
 			if ( shortestCycleObject.getPath().get(i).equals(start) ||
 				 stops.contains(shortestCycleObject.getPath().get(i)) ) {
