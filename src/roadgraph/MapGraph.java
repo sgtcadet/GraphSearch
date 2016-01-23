@@ -741,6 +741,32 @@ public class MapGraph {
 		
 		System.out.println("Total distance traveled is: " + totalLength + " miles");
 		System.out.println("Total travel time is: " + totalTravelTime + " minutes");
+		System.out.println("Meta path is: ");
+		for (int i = 0; i < shortestCycleObject.getPath().size(); i++) {
+			System.out.print("(" + shortestCycleObject.getPath().get(i).getX() + 
+							 "," + shortestCycleObject.getPath().get(i).getY() + ")");
+			if (i < shortestCycleObject.getPath().size()-1){
+				System.out.print( " -> ");
+			}
+		}
+		System.out.println("");
+		System.out.println("Total path is: ");
+		for (int i = 0; i < greedyPaths.size(); i++) {
+			if (i < greedyPaths.size()-1) {
+				for (int j = 0; j < greedyPaths.get(i).getPath().size()-1; j++) {
+					System.out.print("(" + greedyPaths.get(i).getPath().get(j).getX() + 
+									 "," + greedyPaths.get(i).getPath().get(j).getY() + 
+									 ") take ");
+					System.out.print(greedyPaths.get(i).getRoadsTaken().get(j).getRoadName() +
+									 " to -> ");
+				}
+			}
+			else {
+				System.out.print("(" + greedyPaths.get(i).getPath().get(0).getX() + 
+						         "," + greedyPaths.get(i).getPath().get(0).getY() + ")");
+				System.out.println("");
+			}
+		}
 		return greedyPaths;
 	}
 	

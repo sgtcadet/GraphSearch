@@ -151,13 +151,13 @@ public class TSPGrader implements Runnable {
             		new GeographicPoint(0, 0), 
             		testStopsOne, 
             		noOffLimits);
-            /*
+            
             runTest(2, "mixedLine.txt", 
             		"MAP: Straight line with mixed road types", 
             		new GeographicPoint(0, 0), 
             		testStopsOne,
             		noOffLimits);
-
+            /*
             runTest(3, "map3.txt", 
             		"MAP: Right triangle (with a little detour)", 
             		new GeographicPoint(0, 0), 
