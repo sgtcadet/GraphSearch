@@ -1,22 +1,15 @@
 package roadgraph;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
-import java.util.function.Consumer;
-
 import util.GraphLoader;
 import geography.*;
 
-/**
+/** Test cases for the Traveling Salesperson Problem (TSP) algorithms 
+ * (including greedyShortestCycle and twoOptShortestCycle).
+ * 
  * @author ryanwilliamconnor
- * Grader for MapGraph.greedyShortestCycle().
  */
 public class TSPGrader implements Runnable {
 	
@@ -66,7 +59,7 @@ public class TSPGrader implements Runnable {
      * @param start The point to start from
      * @param end The point to end at
      */
-    public void runTest(int i, String file, String desc, 
+    public void runTest(int i, boolean twoOpt, String file, String desc, 
     					GeographicPoint start, List<GeographicPoint> stops,
     					HashMap<Double,HashMap<Double,Integer>> offLimits) {
         MapGraph graph = new MapGraph();
@@ -77,7 +70,7 @@ public class TSPGrader implements Runnable {
         CorrectAnswer corr = new CorrectAnswer("data/graders/extension/" + file +
         									   ".answer", false);
 
-        judge(i, graph, corr, start, stops, offLimits);
+        judge(i, twoOpt, graph, corr, start, stops, offLimits);
     }
 
     /** Compare the user's result with the right answer.
@@ -88,7 +81,7 @@ public class TSPGrader implements Runnable {
      * @param stops: The stops to visit once each
      * @param offLimits: The locations that are illegal to visit during the tour
      */
-    public void judge(int i, MapGraph result, CorrectAnswer corr, 
+    public void judge(int i, boolean twoOpt, MapGraph result, CorrectAnswer corr, 
     				  GeographicPoint start, List<GeographicPoint> stops,
     				  HashMap<Double,HashMap<Double,Integer>> offLimits) {
     	// Correct if paths are same length and have the same elements
@@ -98,18 +91,19 @@ public class TSPGrader implements Runnable {
         
         ArrayList<PathObject> TSPPaths;
         List<GeographicPoint> path;
+        List<GeographicPoint> metaPath;
         
-        if (i < 5) {
-            TSPPaths = result.greedyShortestCycle(start, stops, offLimits);
-            path = TSPPaths.get(TSPPaths.size()-1).getPath();
+        if (twoOpt) {
+            TSPPaths = result.twoOptShortestCycle(start, stops, offLimits);
         }
         else {
-            TSPPaths = result.twoOptShortestCycle(start, stops, offLimits);
-            path = TSPPaths.get(TSPPaths.size()-1).getPath();
+            TSPPaths = result.greedyShortestCycle(start, stops, offLimits);
         }
 
+        path = TSPPaths.get(TSPPaths.size()-1).getPath();
+        metaPath = result.constructMetaPath(start, stops, TSPPaths);
 
-        if (path == null) {
+        if (metaPath == null) {
             if (corr.path == null) {
                 feedback += "PASSED.";
                 correct++;
@@ -117,11 +111,11 @@ public class TSPGrader implements Runnable {
                 feedback += "FAILED. Your implementation returned null; expected \n" + 
                 			printPath(corr.path) + ".";
             }
-        } else if (path.size() != corr.path.size() || !corr.path.containsAll(path)) {
+        } else if (metaPath.size() != corr.path.size() || !corr.path.containsAll(metaPath)) {
             feedback += "FAILED. Expected: \n" + printPath(corr.path) + 
-            			"Got: \n" + printPath(path);
-            if (path.size() != corr.path.size()) {
-                feedback += "Your result has size " + path.size() + 
+            			"Got: \n" + printPath(metaPath);
+            if (metaPath.size() != corr.path.size()) {
+                feedback += "Your result has size " + metaPath.size() + 
                 			"; expected " + corr.path.size() + ".";
             } else {
                 feedback += "Correct size, but incorrect path.";
@@ -150,49 +144,57 @@ public class TSPGrader implements Runnable {
 
         try {
       
-        	List<GeographicPoint> testStopsOneAndTwo = new ArrayList<GeographicPoint>();
-        	for (int i = 1; i < 7; i++) {
-            	testStopsOneAndTwo.add(new GeographicPoint(i, i));
-        	}
+        	List<GeographicPoint> testStops;
         	
-            runTest(1, "residentialLine.txt", 
+        	testStops = createTestStops(1);
+            runTest(1, false, "residentialLine.txt", 
             		"MAP: Straight line with only residential roads", 
             		new GeographicPoint(0, 0), 
-            		testStopsOneAndTwo, 
+            		testStops, 
             		new HashMap<Double,HashMap<Double,Integer>>());
             
-            runTest(2, "mixedLine.txt", 
+        	testStops = createTestStops(2);
+            runTest(2, false, "mixedLine.txt", 
             		"MAP: Straight line with mixed road types", 
             		new GeographicPoint(0, 0), 
-            		testStopsOneAndTwo,
+            		testStops,
             		new HashMap<Double,HashMap<Double,Integer>>());
             
-        	List<GeographicPoint> testStopsThree = new ArrayList<GeographicPoint>();
-        	for (int i = 1; i < 7; i++) {
-            	testStopsThree.add(new GeographicPoint(i*10, i*10));
-        	}
-            
-            runTest(3, "secondaryStopsLine.txt", 
+        	testStops = createTestStops(3);
+            runTest(3, false, "secondaryStopsLine.txt", 
             		"MAP: Line with intersections in between stops and mixed road types", 
             		new GeographicPoint(0, 0), 
-            		testStopsThree,
+            		testStops,
             		new HashMap<Double,HashMap<Double,Integer>>());
             
-        	List<GeographicPoint> testStopsFourAndFive = new ArrayList<GeographicPoint>();
-            testStopsFourAndFive.add(new GeographicPoint(5, 0));
-            testStopsFourAndFive.add(new GeographicPoint(5, -8));
-            testStopsFourAndFive.add(new GeographicPoint(0, -6));
-            
-            runTest(4, "lectureGreedy.txt", 
+        	testStops = createTestStops(4);    
+            runTest(4, false, "lectureGreedy.txt", 
             		"MAP: Simple example from UCSD lecture where 2-opt TSP improves upon greedy TSP", 
             		new GeographicPoint(0, 0), 
-            		testStopsFourAndFive,
+            		testStops,
             		new HashMap<Double,HashMap<Double,Integer>>());
             
-            runTest(5, "lecture2Opt.txt", 
+        	testStops = createTestStops(5);  
+            runTest(5, true, "lecture2Opt.txt", 
             		"MAP: Simple example from UCSD lecture where 2-opt TSP improves upon greedy TSP", 
             		new GeographicPoint(0, 0), 
-            		testStopsFourAndFive,
+            		testStops,
+            		new HashMap<Double,HashMap<Double,Integer>>());
+            
+        	testStops = createTestStops(6);  
+            runTest(6, false, "lectureGreedyMixedRoads.txt", 
+            		"MAP: Simple example from UCSD lecture where 2-opt TSP improves upon greedy TSP, " +
+            				"but with mixed road types", 
+            		new GeographicPoint(0, 0), 
+            		testStops,
+            		new HashMap<Double,HashMap<Double,Integer>>());
+            
+        	testStops = createTestStops(7);  
+            runTest(7, true, "lecture2OptMixedRoads.txt", 
+            		"MAP: Simple example from UCSD lecture where 2-opt TSP improves upon greedy TSP, " +
+            				"but with mixed road types", 
+            		new GeographicPoint(0, 0), 
+            		testStops,
             		new HashMap<Double,HashMap<Double,Integer>>());
 			
             if (correct == TESTS)
@@ -207,5 +209,32 @@ public class TSPGrader implements Runnable {
         }
             
         System.out.println(printOutput((double)correct / TESTS, feedback));
+    }
+    
+    public List<GeographicPoint> createTestStops(int test) {
+    	
+    	List<GeographicPoint> testStops = new ArrayList<GeographicPoint>();
+    	
+    	if (test < 3) {
+    		
+        	for (int i = 1; i < 7; i++) {
+        		
+            	testStops.add(new GeographicPoint(i, i));
+        	}
+    	}
+    	else if (test == 3) {
+        	
+    		for (int i = 1; i < 7; i++) {
+            	
+    			testStops.add(new GeographicPoint(i*10, i*10));
+        	}
+    	}
+    	else {
+            testStops.add(new GeographicPoint(5, 0));
+            testStops.add(new GeographicPoint(5, -8));
+            testStops.add(new GeographicPoint(0, -6));
+    	}
+    	
+    	return testStops;
     }
 }

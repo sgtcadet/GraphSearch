@@ -652,7 +652,8 @@ public class MapGraph {
 				offLimits.put(startX, offLimitsY);
 			}
 		}
-			
+		
+		// add MapIntersections instead of GeographicPoints if possible
 		if (stops.get(0) instanceof MapIntersection) {
 			for (GeographicPoint stop : stops) {
 				toVisit.add((MapIntersection)stop);
@@ -926,6 +927,47 @@ public class MapGraph {
 			}
 		}
 		return greedyPaths;
+	}
+	
+	/** Construct a "meta" path from a starting point, a list of "meta" stops, and a list of 
+	 * the entire path (with each item in the list a path from one stop to another and the 
+	 * last item in the list being the total path with all stops). 
+	 * 
+	 * Throws an IllegalArgumentException if one of the desired "meta" stops is not on the 
+	 * longer path.
+	 * 
+	 * Useful for answering questions like "Along this complicated, long path, in what order
+	 * do we visit A, B, C, and D?"
+	 * 
+	 * @param start: The starting location for the meta path
+	 * @param metaStops: A list of locations that are in the longer path
+	 * @param totalPathList: A list of path objects that comprise the total path 
+	 * @return The "meta" path with the sequential ordering of each item in metaStops.
+	 */
+	public ArrayList<GeographicPoint> constructMetaPath(GeographicPoint start,
+														List<GeographicPoint> metaStops,
+														List<PathObject> totalPathList) 
+	throws IllegalArgumentException {
+		
+		ArrayList<GeographicPoint> metaPath = new ArrayList<GeographicPoint>();
+		List<GeographicPoint> totalPath = 
+				totalPathList.get(totalPathList.size()-1).getPath();
+		
+		metaPath.add(start);
+		for (GeographicPoint hop : totalPath) {
+			
+			if (metaStops.contains(hop)) {
+				metaPath.add(hop);
+				metaStops.remove(hop);
+			}	
+		}
+		metaPath.add(start);
+		
+		if (metaStops.size() > 0) {
+			throw new IllegalArgumentException("One of the meta stops is not on the total path");
+		}
+		
+		return metaPath;
 	}
 	
 	public void printPathInfo(double totalLength,
