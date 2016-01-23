@@ -594,23 +594,26 @@ public class MapGraph {
 	public ArrayList<PathObject> greedyShortestCycle(GeographicPoint start, 
 							    	List<GeographicPoint> stops,
 								    Consumer<GeographicPoint> nodeSearched,
-								    HashMap<Double,HashMap<Double,Integer>> offLimits) {
+								    HashMap<Double,HashMap<Double,Integer>> offLimits) 
+	throws IllegalArgumentException {
 		
 		ArrayList<PathObject> greedyPaths = new ArrayList<PathObject>();
-		
-		// if the start does not exist in the graph, return null
+		// throw exception if the start does not exist in the graph
 		if (!nodeCoords.contains(start)) {
-			return null;
+			
+			throw new IllegalArgumentException("Start location does not exist in the graph");
 		}
 		
-		// if any stops do not exist in the graph, return null
+		// throw exception if any stops do not exist in the graph, return null
 		for (GeographicPoint stop : stops) {
 			if (!nodeCoords.contains(stop)) {
-				return null;
+				
+				throw new IllegalArgumentException("Stop " + stop + " does not exist in the graph");
 			}
 			// if any stops are the start, throw an exception
 			if (stop.equals(start)) {
-				throw new IllegalArgumentException();
+				
+				throw new IllegalArgumentException("One of the stops is the same as the start");
 			}
 		}
 		
@@ -744,7 +747,7 @@ public class MapGraph {
 		greedyPaths.add(shortestCycleObject);
 		
 		printPathInfo(totalLength, totalTravelTime, shortestCycleObject,
-					  start, shortestCycle, greedyPaths);
+					  start, stops, greedyPaths);
 		
 		return greedyPaths;
 	}
@@ -816,13 +819,13 @@ public class MapGraph {
 		metaPath.add(start);
 		// start should be off limits when finding better paths via two-opt
 		offLimits.get(start.getX()).put(start.getY(), 1);
-		greedyPaths = twoOptChecking(greedyPaths, metaPath, offLimits);
+		greedyPaths = twoOptChecking(start, stops, greedyPaths, metaPath, offLimits);
 		
 		printPathInfo(greedyPaths.get(greedyPaths.size()-1).getLength(),
 					  greedyPaths.get(greedyPaths.size()-1).getTravelTime(),
 					  greedyPaths.get(greedyPaths.size()-1),
 					  start,
-					  greedyPaths.get(greedyPaths.size()-1).getPath(),
+					  stops,
 					  greedyPaths);
 		
 		return greedyPaths;
@@ -837,7 +840,9 @@ public class MapGraph {
 	 * @param shortestCycle 
 	 * @return The shortest tour from start that visits each stop exactly once.
 	 */
-	public ArrayList<PathObject> twoOptChecking(ArrayList<PathObject> greedyPaths,
+	public ArrayList<PathObject> twoOptChecking(GeographicPoint start,
+									 List<GeographicPoint> stops,
+									 ArrayList<PathObject> greedyPaths,
 									 ArrayList<GeographicPoint> metaPath,
 									 HashMap<Double,HashMap<Double,Integer>> offLimits) {
 		
@@ -847,6 +852,12 @@ public class MapGraph {
 			   newTimeOne, newTimeTwo, swapTime,
 			   oldLengthOne, oldLengthTwo, origLength,
 			   newLengthOne, newLengthTwo, swapLength;
+		
+		/*System.out.println("Before switch meta path is: ");
+		for (int x = 0; x < metaPath.size(); x++) {
+			System.out.println(metaPath.get(x));
+		}
+		*/
 		
 		edgeOne:
 		for (int i = 0; i < metaPath.size()-3; i++) {
@@ -928,24 +939,24 @@ public class MapGraph {
 						// this is the place to change the decision to length, if wanted.
 						if (swapTimeSave > reverseTimeGain) {
 							
-							// set the new meta path, sub path, and total path
+							// set the new sub path, and total path
 							greedyPaths.set(i, newPathOne);
-							metaPath.set(i+1, newPathOne.getPath().get(0));
+							//metaPath.set(i+1, newPathOne.getPath().get(0));
 							
-							int iters = 1;
+							//int iters = 1;
 							for (int k = j; k > i; k--) {
 								
 								if (k == j) {
 									
-									metaPath.set(i+1+iters, newPathTwo.getPath().get(0));
+									//metaPath.set(i+1+iters, newPathTwo.getPath().get(0));
 									greedyPaths.set(k, newPathTwo);
 								}
 								else {
 	
-									metaPath.set(i+1+iters, reversePathObjects.get(0).getPath().get(0));
+									//metaPath.set(i+1+iters, reversePathObjects.get(0).getPath().get(0));
 									greedyPaths.set(k, reversePathObjects.remove(0));
 								}
-								iters++;
+								//iters++;
 							}
 							
 							// construct the new total path				
@@ -979,8 +990,17 @@ public class MapGraph {
 							
 							greedyPaths.set(greedyPaths.size()-1, totalPathObject);
 							
+							metaPath = constructMetaPath(start, stops, greedyPaths);
+							/* System.out.println("After switch meta path is: ");
+							for (int x = 0; x < metaPath.size(); x++) {
+								System.out.println(metaPath.get(x));
+							}
+							*/
 							// do twoOptChecking with the new best path
-							greedyPaths = twoOptChecking(greedyPaths,
+							System.out.println("swap");
+							greedyPaths = twoOptChecking(start, 
+														 stops,
+													     greedyPaths,
 														 metaPath, 
 														 offLimits);
 							break edgeOne;
@@ -1015,18 +1035,28 @@ public class MapGraph {
 		ArrayList<GeographicPoint> metaPath = new ArrayList<GeographicPoint>();
 		List<GeographicPoint> totalPath = 
 				totalPathList.get(totalPathList.size()-1).getPath();
+		List<GeographicPoint> metaStopsCopy = new ArrayList<GeographicPoint>();
+		GeographicPoint currentClone;
+		
+		for (int i = 0; i < metaStops.size(); i++) {
+			currentClone = (GeographicPoint)metaStops.get(i).clone();
+			metaStopsCopy.add(currentClone);
+		}
+		
+		//System.out.println("There are " + metaStops.size() + " stops to account for");
 		
 		metaPath.add(start);
 		for (GeographicPoint hop : totalPath) {
 			
-			if (metaStops.contains(hop)) {
+			if (metaStopsCopy.contains(hop)) {
 				metaPath.add(hop);
-				metaStops.remove(hop);
+				metaStopsCopy.remove(hop);
+				//System.out.println("added " + hop + " to the metaPath");
 			}	
 		}
 		metaPath.add(start);
-		
-		if (metaStops.size() > 0) {
+
+		if (metaStopsCopy.size() > 0) {
 			throw new IllegalArgumentException("One of the meta stops is not on the total path");
 		}
 		

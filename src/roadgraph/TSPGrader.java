@@ -196,6 +196,13 @@ public class TSPGrader implements Runnable {
             		new GeographicPoint(0, 0), 
             		testStops,
             		new HashMap<Double,HashMap<Double,Integer>>());
+            
+        	testStops = createTestStops(8);  
+            runTest(8, true, "san_diego.txt", 
+            		"MAP: Real San Diego map data", 
+            		new GeographicPoint(32.7178178, -117.1565474), 
+            		testStops,
+            		new HashMap<Double,HashMap<Double,Integer>>());
 			
             if (correct == TESTS)
                 feedback = "All tests passed. Great job!" + feedback;
@@ -229,10 +236,37 @@ public class TSPGrader implements Runnable {
     			testStops.add(new GeographicPoint(i*10, i*10));
         	}
     	}
-    	else {
+    	else if (test < 8) {
+    		
             testStops.add(new GeographicPoint(5, 0));
             testStops.add(new GeographicPoint(5, -8));
             testStops.add(new GeographicPoint(0, -6));
+    	}
+    	else {
+    		
+    		testStops.add(new GeographicPoint(32.7198953, -117.1565681));
+    		testStops.add(new GeographicPoint(32.719891, -117.158371));
+    		testStops.add(new GeographicPoint(32.719902, -117.16112));
+    		testStops.add(new GeographicPoint(32.719891, -117.163849));
+    		testStops.add(new GeographicPoint(32.7198573, -117.1674044));
+    		testStops.add(new GeographicPoint(32.71777, -117.167381));
+    		testStops.add(new GeographicPoint(32.715717, -117.167374));
+    		testStops.add(new GeographicPoint(32.7125442, -117.1665097));
+    		testStops.add(new GeographicPoint(32.7114208, -117.164695));
+    		testStops.add(new GeographicPoint(32.7114919, -117.1610414));
+    		testStops.add(new GeographicPoint(32.7115072, -117.157387));
+    		testStops.add(new GeographicPoint(32.7125906, -117.155593));
+    		testStops.add(new GeographicPoint(32.715726, -117.1556095));
+    		testStops.add(new GeographicPoint(32.7167929, -117.1556217));
+    		testStops.add(new GeographicPoint(32.7167505, -117.1583407));
+    		testStops.add(new GeographicPoint(32.717812, -117.1592692));
+    		testStops.add(new GeographicPoint(32.7178034, -117.1620054));
+    		testStops.add(new GeographicPoint(32.7177746, -117.1647364));
+    		testStops.add(new GeographicPoint(32.714638, -117.164703));
+    		testStops.add(new GeographicPoint(32.7125556, -117.1628801));
+    		testStops.add(new GeographicPoint(32.7125762, -117.1592358));
+    		testStops.add(new GeographicPoint(32.7146753, -117.1583403));
+    		testStops.add(new GeographicPoint(32.7157252, -117.1574393));
     	}
     	
     	return testStops;

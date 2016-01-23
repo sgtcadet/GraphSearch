@@ -4,6 +4,9 @@ package roadgraph;
  * 
  * Holds length in miles, speed limit in miles per hour, and travel time in minutes.
  * Constructor assumes length is given in kilometers.
+ * 
+ * Defaults to a speed limit of 40 MPH if the road type is not recognized.
+ * 
  * @author ryanwilliamconnor
  */
 public class MapEdge {
@@ -52,8 +55,8 @@ public class MapEdge {
 			}
 			else {
 				this.speedLimit = 40.0;
-				System.out.println("Road " + roadName + " has a strange roadType. " +
-								   "This may make results innacurate");
+				//System.out.println("Road " + roadName + " has a strange roadType. " +
+					//			   "This may make results innacurate");
 			}
 			
 			setTravelTime(this.speedLimit);
