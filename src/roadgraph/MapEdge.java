@@ -53,6 +53,9 @@ public class MapEdge {
 			else if (roadType.equals("service")) {
 				this.speedLimit = 15.0;
 			}
+			else if (roadType.equals("flight")) {
+				this.speedLimit = 550.0;
+			}
 			else {
 				this.speedLimit = 40.0;
 				//System.out.println("Road " + roadName + " has a strange roadType. " +

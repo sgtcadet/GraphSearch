@@ -861,7 +861,7 @@ public class MapGraph {
 		
 		edgeOne:
 		for (int i = 0; i < metaPath.size()-3; i++) {
-				
+			
 			startEdgeOne = metaPath.get(i);
 			endEdgeOne = metaPath.get(i+1);
 			
@@ -939,24 +939,36 @@ public class MapGraph {
 						// this is the place to change the decision to length, if wanted.
 						if (swapTimeSave > reverseTimeGain) {
 							
+							System.out.println("Swapping in " + 
+											   newPathOne.getRoadsTaken().get(0).getRoadName() + " for " + 
+											   greedyPaths.get(i).getRoadsTaken().get(0).getRoadName());
+							System.out.println("Swapping in " + 
+											   newPathTwo.getRoadsTaken().get(0).getRoadName() + " for " +
+											   greedyPaths.get(j).getRoadsTaken().get(0).getRoadName());
 							// set the new sub path, and total path
-							greedyPaths.set(i, newPathOne);
 							//metaPath.set(i+1, newPathOne.getPath().get(0));
 							
-							//int iters = 1;
-							for (int k = j; k > i; k--) {
+							for (int k = i; k < j+1; k++) {
 								
-								if (k == j) {
-									
+								//System.out.println("i is " + i);
+								//System.out.println("j is " + j);
+								//System.out.println("k is " + k);
+								if (k == i) {
+									//System.out.println("Set the new path one");
+									greedyPaths.set(k, newPathOne);
+								}
+								else if (k == j) {
+									//System.out.println("Set the new path two");
 									//metaPath.set(i+1+iters, newPathTwo.getPath().get(0));
 									greedyPaths.set(k, newPathTwo);
 								}
 								else {
-	
+									//System.out.println("Set a reverse path");
+									//System.out.println("size of reverse paths is " + 
+									//				   reversePathObjects.size());
 									//metaPath.set(i+1+iters, reversePathObjects.get(0).getPath().get(0));
 									greedyPaths.set(k, reversePathObjects.remove(0));
 								}
-								//iters++;
 							}
 							
 							// construct the new total path				
@@ -998,6 +1010,14 @@ public class MapGraph {
 							*/
 							// do twoOptChecking with the new best path
 							System.out.println("swap");
+							System.out.println("info after swap: ");
+							printPathInfo(totalPathLength, 
+									      totalPathTime, 
+									      totalPathObject,
+									      start,
+									      stops,
+									      greedyPaths);
+							
 							greedyPaths = twoOptChecking(start, 
 														 stops,
 													     greedyPaths,

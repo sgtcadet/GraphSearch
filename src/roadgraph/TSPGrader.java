@@ -17,7 +17,7 @@ public class TSPGrader implements Runnable {
 
     public int correct;
 
-    private static final int TESTS = 7;
+    private static final int TESTS = 8;
 
     /** Format readable feedback */
     public static String printOutput(double score, String feedback) {
@@ -103,6 +103,16 @@ public class TSPGrader implements Runnable {
         path = TSPPaths.get(TSPPaths.size()-1).getPath();
         metaPath = result.constructMetaPath(start, stops, TSPPaths);
 
+		boolean incorrectPath = false;
+		
+    	for (int j = 0; j < metaPath.size(); j++) {
+    		
+    		if (!metaPath.get(j).equals(corr.path.get(j))) {
+    			incorrectPath = true;
+    			break;
+    		}
+    	}
+        
         if (metaPath == null) {
             if (corr.path == null) {
                 feedback += "PASSED.";
@@ -111,14 +121,20 @@ public class TSPGrader implements Runnable {
                 feedback += "FAILED. Your implementation returned null; expected \n" + 
                 			printPath(corr.path) + ".";
             }
-        } else if (metaPath.size() != corr.path.size() || !corr.path.containsAll(metaPath)) {
+        } else if (metaPath.size() != corr.path.size() || 
+        		   !corr.path.containsAll(metaPath) ||
+        		   incorrectPath) {
             feedback += "FAILED. Expected: \n" + printPath(corr.path) + 
             			"Got: \n" + printPath(metaPath);
             if (metaPath.size() != corr.path.size()) {
                 feedback += "Your result has size " + metaPath.size() + 
                 			"; expected " + corr.path.size() + ".";
+            } else if (incorrectPath && corr.path.containsAll(metaPath)) {
+            	
+            	feedback += "Path is out of order.";
             } else {
-                feedback += "Correct size, but incorrect path.";
+            
+            	feedback += "Correct size, but incorrect path.";
             }
         } else {
             feedback += "PASSED.";
@@ -203,6 +219,13 @@ public class TSPGrader implements Runnable {
             		new GeographicPoint(32.7178178, -117.1565474), 
             		testStops,
             		new HashMap<Double,HashMap<Double,Integer>>());
+            
+        	testStops = createTestStops(9);  
+            runTest(9, true, "lectureRTW.txt", 
+            		"MAP: A round the world TSP with eight cities", 
+            		new GeographicPoint(32.7153300,-117.1572600), // start in San Diego
+            		testStops,
+            		new HashMap<Double,HashMap<Double,Integer>>());
 			
             if (correct == TESTS)
                 feedback = "All tests passed. Great job!" + feedback;
@@ -242,7 +265,7 @@ public class TSPGrader implements Runnable {
             testStops.add(new GeographicPoint(5, -8));
             testStops.add(new GeographicPoint(0, -6));
     	}
-    	else {
+    	else if (test == 8) {
     		
     		testStops.add(new GeographicPoint(32.7198953, -117.1565681));
     		testStops.add(new GeographicPoint(32.719891, -117.158371));
@@ -267,6 +290,16 @@ public class TSPGrader implements Runnable {
     		testStops.add(new GeographicPoint(32.7125762, -117.1592358));
     		testStops.add(new GeographicPoint(32.7146753, -117.1583403));
     		testStops.add(new GeographicPoint(32.7157252, -117.1574393));
+    	}
+    	else {
+    		
+    		testStops.add(new GeographicPoint(-12.0431800, -77.0282400)); // lima
+    		testStops.add(new GeographicPoint(48.8534100, 2.3488000)); // paris
+    		testStops.add(new GeographicPoint(30.0626300, 31.2496700)); // cairo
+    		testStops.add(new GeographicPoint(-26.2022700, 28.0436300)); // johannesburg
+    		testStops.add(new GeographicPoint(13.0878400, 80.2784700)); // chennai
+    		testStops.add(new GeographicPoint(39.9075000, 116.3972300)); // beijing
+    		testStops.add(new GeographicPoint(-31.9522400, 115.8614000)); // perth
     	}
     	
     	return testStops;
