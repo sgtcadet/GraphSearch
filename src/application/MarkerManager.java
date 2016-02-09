@@ -1,7 +1,7 @@
 /** Class to manage Markers on the Map
  * 
  * @author UCSD MOOC development team
- *
+ * @author ryanwilliamconnor
  */
 
 package application;
@@ -31,12 +31,12 @@ public class MarkerManager {
     private ArrayList<geography.GeographicPoint> markerPositions;
     private GoogleMap map;
     protected static String startURL = "http://maps.google.com/mapfiles/kml/pal3/icon40.png";
-    protected static String destinationURL = "http://maps.google.com/mapfiles/kml/pal2/icon5.png";
+    protected static String stopURL = "http://maps.google.com/mapfiles/kml/pal2/icon5.png";
     protected static String SELECTED_URL = "http://maps.google.com/mapfiles/kml/paddle/ltblu-circle.png";
     protected static String markerURL = "http://maps.google.com/mapfiles/kml/paddle/blu-diamond-lv.png";
 	protected static String visURL = "http://maps.google.com/mapfiles/kml/paddle/red-diamond-lv.png";
     private Marker startMarker;
-    private Marker destinationMarker;
+    private List<Marker> stopMarkers;
     private Marker selectedMarker;
     private DataSet dataSet;
     private LatLongBounds bounds;
@@ -112,14 +112,18 @@ public class MarkerManager {
 //        startMarker.setZIndex(STRTDEST_Z);
         changeIcon(startMarker, startURL);
     }
-    public void setDestination(geography.GeographicPoint point) {
-    	if(destinationMarker != null) {
-    		destinationMarker.setIcon(markerURL);
+    public void setStop(geography.GeographicPoint point) {
+    	
+    	Marker thisStopMarker = markerMap.get(point);
 //            destinationMarker.setZIndex(DEFAULT_Z);
+    	if (stopMarkers == null) {
+    		
+    		stopMarkers = new ArrayList<Marker>();
     	}
-        destinationMarker = markerMap.get(point);
+    	
+        changeIcon(thisStopMarker, stopURL);
+    	stopMarkers.add(thisStopMarker);
 //        destinationMarker.setZIndex(STRTDEST_Z);
-        changeIcon(destinationMarker, destinationURL);
     }
 
     public void changeIcon(Marker marker, String url) {
@@ -187,15 +191,19 @@ public class MarkerManager {
         Iterator<geography.GeographicPoint> it = markerMap.keySet().iterator();
         while(it.hasNext()) {
             Marker marker = markerMap.get(it.next());
-            if(marker != startMarker && marker != destinationMarker) {
+            if(marker != startMarker && !stopMarkers.contains(marker)) {
                 marker.setVisible(false);
             }
 //        	map.addMarker(marker);
         }
     }
 
-    public void hideDestinationMarker() {
-    	destinationMarker.setVisible(false);
+    public void hideStopMarkers() {
+    	
+    	for (Marker stop : stopMarkers) {
+    		
+        	stop.setVisible(false);	
+    	}
     }
 
     public void displayMarker(geography.GeographicPoint point) {
@@ -245,7 +253,7 @@ public class MarkerManager {
             //System.out.println("Clicked Marker : " + point.toString());
             if(selectMode) {
                 	if(selectedMarker != null && selectedMarker != startMarker
-                	   && selectedMarker != destinationMarker) {
+                	   && !stopMarkers.contains(selectedMarker)) {
                 		selectedMarker.setIcon(markerURL);
 //                		selectedMarker.setZIndex(DEFAULT_Z);
                 	}

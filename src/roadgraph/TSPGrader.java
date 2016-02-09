@@ -93,12 +93,20 @@ public class TSPGrader implements Runnable {
         List<GeographicPoint> path;
         List<GeographicPoint> metaPath;
         
+        // time the algorithm
+        double algorithmTime = 0;
+		long algorithmStartTime = System.nanoTime();
+	
         if (twoOpt) {
             TSPPaths = result.twoOptShortestCycle(start, stops, offLimits);
         }
         else {
             TSPPaths = result.greedyShortestCycle(start, stops, offLimits);
         }
+        
+		long algorithmEndTime = System.nanoTime();
+		algorithmTime = (double)(algorithmEndTime - algorithmStartTime) / 1000000000; // to get seconds
+		System.out.println("Test " + i + " took " + algorithmTime + " seconds");
 
         path = TSPPaths.get(TSPPaths.size()-1).getPath();
         metaPath = result.constructMetaPath(start, stops, TSPPaths);

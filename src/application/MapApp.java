@@ -3,7 +3,7 @@
  * to test and develop graph algorithms and data structures
  * 
  * @author UCSD MOOC development team
- *
+ * @author ryanwilliamconnor
  */
 package application;
 
@@ -34,6 +34,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -104,17 +105,29 @@ public class MapApp extends Application
     Button resetButton = new Button("Reset");
     Button visualizationButton = new Button("Start Visualization");
     Image sImage = new Image(MarkerManager.startURL);
-    Image dImage = new Image(MarkerManager.destinationURL);
-    CLabel<geography.GeographicPoint> startLabel = new CLabel<geography.GeographicPoint>("Empty.", new ImageView(sImage), null);
-    CLabel<geography.GeographicPoint> endLabel = new CLabel<geography.GeographicPoint>("Empty.", new ImageView(dImage), null);
+    Image dImage = new Image(MarkerManager.stopURL);
+    CLabel<geography.GeographicPoint> startLabel = 
+    		new CLabel<geography.GeographicPoint>("Empty.", 
+    											  new ImageView(sImage), null);
+    List<CLabel<geography.GeographicPoint>> stopLabels = 
+    		new ArrayList<CLabel<geography.GeographicPoint>>();
+    for (int i = 0; i < RouteController.MAXSTOPS; i++) {
+        stopLabels.add(new CLabel<geography.GeographicPoint>("Empty.", 
+		  		 new ImageView(dImage), null));
+    }
+
     //TODO -- hot fix
     startLabel.setMinWidth(180);
-    endLabel.setMinWidth(180);
+    for (Label stopLabel : stopLabels) {
+        stopLabel.setMinWidth(180);
+    }
 //        startLabel.setWrapText(true);
 //        endLabel.setWrapText(true);
     Button startButton = new Button("Start");
-    Button destinationButton = new Button("Dest");
-
+    List<Button> stopButtons = new ArrayList<Button>();
+    for (int i = 0; i < RouteController.MAXSTOPS; i++) {
+    	stopButtons.add(new Button("Stop " + (i+1)));
+    }
     // Radio buttons for selecting search algorithm
     final ToggleGroup group = new ToggleGroup();
 
@@ -130,12 +143,15 @@ public class MapApp extends Application
     markerManager.setVisButton(visualizationButton);
 
     // create components for route tab
-    CLabel<geography.GeographicPoint> pointLabel = new CLabel<geography.GeographicPoint>("No point Selected.", null);
+    CLabel<geography.GeographicPoint> pointLabel = 
+    		new CLabel<geography.GeographicPoint>("No point Selected.", null);
     manager.setPointLabel(pointLabel);
     manager.setStartLabel(startLabel);
-    manager.setDestinationLabel(endLabel);
-    setupRouteTab(routeTab, fetchBox, startLabel, endLabel, pointLabel, routeButton, hideRouteButton,
-        		  resetButton, visualizationButton, startButton, destinationButton, searchOptions);
+    manager.setStopLabels(stopLabels);
+    setupRouteTab(routeTab, fetchBox, startLabel, stopLabels, 
+    			  pointLabel, routeButton, hideRouteButton,
+        		  resetButton, visualizationButton, startButton, 
+        		  stopButtons, searchOptions);
 
         // add tabs to pane, give no option to close
 		TabPane tp = new TabPane(routeTab);
@@ -147,8 +163,11 @@ public class MapApp extends Application
         RouteService rs = new RouteService(mapComponent, markerManager);
         //System.out.println("in map ready : " + this.getClass());
         // initialize controllers
-				new RouteController(rs, routeButton, hideRouteButton, resetButton, startButton, destinationButton, group, searchOptions, visualizationButton,
-															  startLabel, endLabel, pointLabel, manager, markerManager);
+				new RouteController(rs, routeButton, hideRouteButton, 
+									resetButton, startButton, stopButtons, 
+									group, searchOptions, visualizationButton,
+									startLabel, stopLabels, pointLabel, 
+									manager, markerManager);
         new FetchController(gs, rs, tf, fetchButton, cb, displayButton);
     });
 
@@ -240,9 +259,12 @@ public class MapApp extends Application
    * @param routeTab
    * @param box
    */
-  private void setupRouteTab(Tab routeTab, VBox fetchBox, Label startLabel, Label endLabel, Label pointLabel,
-  						   Button showButton, Button hideButton, Button resetButton, Button vButton, Button startButton,
-  						   Button destButton, List<RadioButton> searchOptions) {
+  private void setupRouteTab(Tab routeTab, VBox fetchBox, Label startLabel, 
+		  					 List<CLabel<geography.GeographicPoint>> stopLabels, 
+		  					 Label pointLabel, Button showButton, Button hideButton, 
+		  					 Button resetButton, Button vButton, 
+		  					 Button startButton, List<Button> stopButtons, 
+		  					 List<RadioButton> searchOptions) {
 
 		//set up tab layout
 	    HBox h = new HBox();
@@ -261,14 +283,19 @@ public class MapApp extends Application
       startBox.getChildren().add(startButton);
       startBox.setSpacing(20);
 
-      HBox destinationBox = new HBox();
-      destinationBox.getChildren().add(endLabel);
-      destinationBox.getChildren().add(destButton);
-      destinationBox.setSpacing(20);
-
+      VBox stopBoxes = new VBox();
+      for (int i = 0; i < RouteController.MAXSTOPS; i++) {
+    	  
+    	  HBox stopBox = new HBox();
+          stopBox.getChildren().add(stopLabels.get(i));
+          stopBox.getChildren().add(stopButtons.get(i));
+          stopBox.setSpacing(20);
+          
+          stopBoxes.getChildren().add(stopBox);
+      }
 
       VBox markerBox = new VBox();
-      Label markerLabel = new Label("Selected Marker : ");
+      Label markerLabel = new Label("Selected Marker: ");
 
 
       markerBox.getChildren().add(markerLabel);
@@ -285,10 +312,10 @@ public class MapApp extends Application
       showHideBox.setSpacing(2*MARGIN_VAL);
 
       v.getChildren().add(fetchBox);
-      v.getChildren().add(new Label("Start Position : "));
+      v.getChildren().add(new Label("Start Position: "));
       v.getChildren().add(startBox);
-      v.getChildren().add(new Label("Goal : "));
-      v.getChildren().add(destinationBox);
+      v.getChildren().add(new Label("Stops: "));
+      v.getChildren().add(stopBoxes);
       v.getChildren().add(showHideBox);
       for (RadioButton rb : searchOptions) {
       	v.getChildren().add(rb);
@@ -336,11 +363,22 @@ public class MapApp extends Application
 
 	  RadioButton rbB = new RadioButton("BFS");
 	  rbB.setUserData("BFS");
+	  
+	  RadioButton rbGreedyTSP = new RadioButton("GreedyTSP");
+	  rbGreedyTSP.setUserData("GreedyTSP");
+	  
+	  RadioButton rb2OptTSP = new RadioButton("2OptTSP");
+	  rb2OptTSP.setUserData("2OptTSP");
+	  
 
 	  rbB.setToggleGroup(group);
 	  rbD.setToggleGroup(group);
 	  rbA.setToggleGroup(group);
-	  return new LinkedList<RadioButton>(Arrays.asList(rbB, rbD, rbA));
+	  rbGreedyTSP.setToggleGroup(group);
+	  rb2OptTSP.setToggleGroup(group);
+	  return new LinkedList<RadioButton>(Arrays.asList(rbB, rbD, rbA, 
+			  										   rbGreedyTSP, 
+			  										   rb2OptTSP) );
 	}
 
 

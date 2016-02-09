@@ -27,15 +27,23 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleGroup;
 import javafx.util.StringConverter;
 
+/** 
+ * @author UCSD MOOC development team
+ * @author ryanwilliamconnor
+ */
+
 public class RouteController {
 	// Strings for slider labels
+	public static final int _2OPTTSP = 5;
+	public static final int GREEDYTSP = 4;
 	public static final int BFS = 3;
     public static final int A_STAR = 2;
     public static final int DIJ = 1;
 	public static final int DISABLE = 0;
 	public static final int START = 1;
 	public static final int DESTINATION = 2;
-
+	public static final int MAXSTOPS = 7;
+	
     private int selectedToggle = DIJ;
 
     private RouteService routeService;
@@ -43,12 +51,12 @@ public class RouteController {
     private Button hideButton;
     private Button startButton;
     private Button resetButton;
-    private Button destinationButton;
+    private List<Button> stopButtons;
     private Button visualizationButton;
 
     private ToggleGroup group;
     private CLabel<geography.GeographicPoint> startLabel;
-    private CLabel<geography.GeographicPoint> endLabel;
+    private List<CLabel<geography.GeographicPoint>> stopLabels;
     private CLabel<geography.GeographicPoint> pointLabel;
     private SelectManager selectManager;
     private MarkerManager markerManager;
@@ -56,23 +64,26 @@ public class RouteController {
 
 
 	public RouteController(RouteService routeService, Button displayButton, Button hideButton,
-						   Button resetButton, Button startButton, Button destinationButton,
-						   ToggleGroup group, List<RadioButton> searchOptions, Button visualizationButton,
-						   CLabel<geography.GeographicPoint> startLabel, CLabel<geography.GeographicPoint> endLabel,
-						   CLabel<geography.GeographicPoint> pointLabel, SelectManager manager, MarkerManager markerManager) {
+						   Button resetButton, Button startButton, List<Button> stopButtons,
+						   ToggleGroup group, List<RadioButton> searchOptions, 
+						   Button visualizationButton,
+						   CLabel<geography.GeographicPoint> startLabel, 
+						   List<CLabel<geography.GeographicPoint>> stopLabels,
+						   CLabel<geography.GeographicPoint> pointLabel, 
+						   SelectManager manager, MarkerManager markerManager) {
         // save parameters
         this.routeService = routeService;
 		this.displayButton = displayButton;
         this.hideButton = hideButton;
 		this.startButton = startButton;
 		this.resetButton = resetButton;
-		this.destinationButton = destinationButton;
+		this.stopButtons = stopButtons;
         this.group = group;
         this.visualizationButton = visualizationButton;
 
         // maybe don't need references to labels;
 		this.startLabel = startLabel;
-		this.endLabel = endLabel;
+		this.stopLabels = stopLabels;
         this.pointLabel = pointLabel;
         this.selectManager = manager;
         this.markerManager = markerManager;
@@ -88,11 +99,12 @@ public class RouteController {
 
 	private void setupDisplayButtons() {
 		displayButton.setOnAction(e -> {
-            if(startLabel.getItem() != null && endLabel.getItem() != null) {
-        			routeService.displayRoute(startLabel.getItem(), endLabel.getItem(), selectedToggle);
+            if(startLabel.getItem() != null && stopLabels.get(0).getItem() != null) {
+        			routeService.displayRoute(startLabel.getItem(), stopLabels.get(0).getItem(), selectedToggle);
             }
             else {
-            	MapApp.showErrorAlert("Route Display Error", "Make sure to choose points for both start and destination.");
+            	MapApp.showErrorAlert("Route Display Error", 
+            						  "Choose a start point and at least one stop.");
             }
 		});
 
@@ -119,9 +131,12 @@ public class RouteController {
             selectManager.setStart();
     	});
 
-        destinationButton.setOnAction( e-> {
-            selectManager.setDestination();
-        });
+    	for (Button stopButton : stopButtons) {
+    		
+    		stopButton.setOnAction( e-> {
+    			selectManager.setStop();
+    		});
+    	}
     }
 
 
@@ -140,6 +155,12 @@ public class RouteController {
             }
             else if(group.getSelectedToggle().getUserData().equals("BFS")) {
             	selectedToggle = BFS;
+            }
+            else if(group.getSelectedToggle().getUserData().equals("GreedyTSP")) {
+            	selectedToggle = GREEDYTSP;
+            }
+            else if(group.getSelectedToggle().getUserData().equals("2OptTSP")) {
+            	selectedToggle = _2OPTTSP;
             }
             else {
             	System.err.println("Invalid radio button selection");

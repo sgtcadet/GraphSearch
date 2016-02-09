@@ -1,10 +1,12 @@
 /** Class to manage items selected in the GUI
  * 
  * @author UCSD MOOC development team
- *
+ * @author ryanwilliamconnor
  */
 
 package application;
+import java.util.List;
+
 import application.services.GeneralService;
 import geography.GeographicPoint;
 import gmapsfx.javascript.object.Marker;
@@ -12,7 +14,7 @@ import gmapsfx.javascript.object.Marker;
 public class SelectManager {
     private CLabel<GeographicPoint> pointLabel;
     private CLabel<GeographicPoint> startLabel;
-    private CLabel<GeographicPoint> destinationLabel;
+    private List<CLabel<GeographicPoint>> stopLabels;
     private Marker startMarker;
     private Marker destinationMarker;
     private Marker selectedMarker;
@@ -26,7 +28,7 @@ public class SelectManager {
         selectedMarker = null;
         pointLabel = null;
         startLabel = null;
-        destinationLabel = null;
+        stopLabels = null;
         dataSet = null;
     }
 
@@ -65,13 +67,13 @@ public class SelectManager {
 
     public void setPointLabel(CLabel<GeographicPoint> label) { this.pointLabel = label; }
     public void setStartLabel(CLabel<GeographicPoint> label) { this.startLabel = label; }
-    public void setDestinationLabel(CLabel<GeographicPoint> label) { this.destinationLabel = label; }
+    public void setStopLabels(List<CLabel<GeographicPoint>> labels) { this.stopLabels = labels; }
 
     public GeographicPoint getPoint() { return pointLabel.getItem(); }
 
 
 	public GeographicPoint getStart(){return startLabel.getItem();}
-	public GeographicPoint getDestination(){return destinationLabel.getItem();}
+	public List<CLabel<GeographicPoint>> getStops(){return stopLabels;}
 	public void setStart() {
 		if(pointLabel.getItem() != null) {
         	GeographicPoint point = pointLabel.getItem();
@@ -80,11 +82,11 @@ public class SelectManager {
 		}
 	}
 
-	public void setDestination() {
+	public void setStop() {
 		if(pointLabel.getItem() != null) {
         	GeographicPoint point = pointLabel.getItem();
-    		destinationLabel.setItem(point);
-    		markerManager.setDestination(point);
+    		stopLabels.get(0).setItem(point);
+    		markerManager.setStop(point);
 		}
 	}
 

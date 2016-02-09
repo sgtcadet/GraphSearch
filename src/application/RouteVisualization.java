@@ -1,7 +1,7 @@
 /** Class to aid with route visualization for search
  *  
  * @author UCSD MOOC development team
- *
+ * @author ryanwilliamconnor
  */
 
 package application;
@@ -52,7 +52,7 @@ public class RouteVisualization {
     	List<LatLong> latLongs = new ArrayList<LatLong>();
     	JavascriptArray jsArray = new JavascriptArray();
     	manager.hideIntermediateMarkers();
-        manager.hideDestinationMarker();
+        manager.hideStopMarkers();
 //    	manager.disableRouteButtons(true);
 
     	// create JavascriptArray of points
