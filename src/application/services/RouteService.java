@@ -3,17 +3,20 @@ package application.services;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 
-
+import application.CLabel;
 import application.DataSet;
 import application.MapApp;
 import application.MarkerManager;
 import application.RouteVisualization;
+import application.SelectManager;
 import application.controllers.RouteController;
 
 import java.util.Iterator;
@@ -38,13 +41,17 @@ public class RouteService {
 	private GoogleMap map;
 
     // static variable
+	private SelectManager selectManager;
     private MarkerManager markerManager;
     private Polyline routeLine;
     private RouteVisualization rv;
 
-	public RouteService(GoogleMapView mapComponent, MarkerManager manager) {
+	public RouteService(GoogleMapView mapComponent, 
+						SelectManager selectManager,
+						MarkerManager markerManager) {
 		this.map = mapComponent.getMap();
-        this.markerManager = manager;
+		this.selectManager = selectManager;
+        this.markerManager = markerManager;
 
 	}
     // COULD SEPARATE INTO ROUTE SERVICES IF CONTROLLER
@@ -77,7 +84,7 @@ public class RouteService {
 		//EXCEPTION getBounds() messed up??
         //System.out.println(routeLine.getBounds());
 
-
+		
 		markerManager.hideIntermediateMarkers();
 		map.fitBounds(bounds);
     	markerManager.disableVisButton(false);
@@ -122,6 +129,11 @@ public class RouteService {
                 		new ArrayList<geography.GeographicPoint>();
             	int numStops = stops.size();
             	int stopNum = 1;
+            	
+            	double pathDistance = 0;
+            	double pathTime = 0;
+            	String dispDistance = "Distance (miles): ";
+            	String dispTime = "Time (minutes): ";
             	
             	if (toggle == RouteController.BFS ||
             		toggle == RouteController.DIJ ||
@@ -176,6 +188,15 @@ public class RouteService {
                 				stopNum++;
                 			}
                 		}
+                		
+            			pathDistance += servicePath.getLength();
+            			pathTime += servicePath.getTravelTime();
+            			
+            			NumberFormat pathFormat = new DecimalFormat("#.##");
+            			dispDistance = dispDistance + pathFormat.format(pathDistance);
+            			dispTime = dispTime + pathFormat.format(pathTime);
+            			
+                		selectManager.setRouteInfo(dispDistance, dispTime);
             		}
             	}
             	else {
@@ -217,12 +238,20 @@ public class RouteService {
                 			
                 			if (stops.contains(hop)) {
                 				
-                				System.out.println("Setting icon " + stopNum);
                 				markerManager.setNumStop(hop, stopNum);
                 				stopNum++;
                 			}
             			}
             		}
+            		
+            		pathDistance = allServicePaths.get(allServicePaths.size()-1).getLength();
+            		pathTime = allServicePaths.get(allServicePaths.size()-1).getTravelTime();
+            		
+        			NumberFormat pathFormat = new DecimalFormat("#.##");
+        			dispDistance = dispDistance + pathFormat.format(pathDistance);
+        			dispTime = dispTime + pathFormat.format(pathTime);
+        			
+            		selectManager.setRouteInfo(dispDistance, dispTime);
             	}
 
             	if(path.size() < 1) {

@@ -12,6 +12,9 @@ import geography.GeographicPoint;
 import gmapsfx.javascript.object.Marker;
 
 public class SelectManager {
+	
+    private CLabel<String> routeDistLabel;
+    private CLabel<String> routeTimeLabel;
     private CLabel<GeographicPoint> pointLabel;
     private CLabel<GeographicPoint> startLabel;
     private List<CLabel<GeographicPoint>> stopLabels;
@@ -26,6 +29,8 @@ public class SelectManager {
         startMarker = null;
         destinationMarker = null;
         selectedMarker = null;
+        routeDistLabel = null;
+        routeTimeLabel = null;
         pointLabel = null;
         startLabel = null;
         stopLabels = null;
@@ -35,6 +40,8 @@ public class SelectManager {
 
     public void resetSelect() {
         markerManager.setSelectMode(true);
+        routeDistLabel.setItem(null);
+        routeTimeLabel.setItem(null);
     }
     public void clearSelected() {
     	selectedMarker = null;
@@ -65,6 +72,14 @@ public class SelectManager {
     	}
     }
 
+    public void setRouteInfo(String routeDistDisp, String routeTimeDisp) {
+    	
+    	routeDistLabel.setItem(routeDistDisp);
+    	routeTimeLabel.setItem(routeTimeDisp);
+    }
+
+	public void setRouteDistLabel(CLabel<String> label) { this.routeDistLabel = label; }
+	public void setRouteTimeLabel(CLabel<String> label) { this.routeTimeLabel = label; }
     public void setPointLabel(CLabel<GeographicPoint> label) { this.pointLabel = label; }
     public void setStartLabel(CLabel<GeographicPoint> label) { this.startLabel = label; }
     public void setStopLabels(List<CLabel<GeographicPoint>> labels) { this.stopLabels = labels; }
@@ -90,7 +105,6 @@ public class SelectManager {
     		markerManager.setStop(newStop, oldStop);
 		}
 	}
-
 
 
 }

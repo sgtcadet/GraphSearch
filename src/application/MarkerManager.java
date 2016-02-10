@@ -247,6 +247,7 @@ public class MarkerManager {
     		// System.out.println("no key found for MarkerManager::displayMarker");
     	}
     }
+    
     public void displayDataSet() {
         markerPositions = new ArrayList<geography.GeographicPoint>();
         dataSet.initializeGraph();

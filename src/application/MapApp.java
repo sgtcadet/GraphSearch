@@ -146,10 +146,17 @@ public class MapApp extends Application
     // create components for route tab
     CLabel<geography.GeographicPoint> pointLabel = 
     		new CLabel<geography.GeographicPoint>("No point Selected.", null);
+    CLabel<String> routeDistLabel = 
+    		new CLabel<String>("No route distance yet.", null);
+    CLabel<String> routeTimeLabel = 
+    		new CLabel<String>("No route time yet.", null);
+    manager.setRouteDistLabel(routeDistLabel);
+    manager.setRouteTimeLabel(routeTimeLabel);
     manager.setPointLabel(pointLabel);
     manager.setStartLabel(startLabel);
     manager.setStopLabels(stopLabels);
-    setupRouteTab(routeTab, fetchBox, startLabel, stopLabels, 
+    setupRouteTab(routeTab, fetchBox, routeDistLabel, routeTimeLabel,
+    			  startLabel, stopLabels, 
     			  pointLabel, routeButton, hideRouteButton,
         		  resetButton, visualizationButton, startButton, 
         		  stopButtons, searchOptions);
@@ -161,7 +168,7 @@ public class MapApp extends Application
     // initialize Services and controllers after map is loaded
     mapComponent.addMapReadyListener(() -> {
         GeneralService gs = new GeneralService(mapComponent, manager, markerManager);
-        RouteService rs = new RouteService(mapComponent, markerManager);
+        RouteService rs = new RouteService(mapComponent, manager, markerManager);
         //System.out.println("in map ready : " + this.getClass());
         // initialize controllers
 				new RouteController(rs, routeButton, hideRouteButton, 
@@ -247,7 +254,7 @@ public class MapApp extends Application
     intersectionControls.getChildren().add(displayButton);
 
     h.getChildren().add(v);
-    v.getChildren().add(new Label("Choose map file : "));
+    v.getChildren().add(new Label("Choose map file: "));
     v.getChildren().add(intersectionControls);
 
     //v.setSpacing(MARGIN_VAL);
@@ -260,7 +267,9 @@ public class MapApp extends Application
    * @param routeTab
    * @param box
    */
-  private void setupRouteTab(Tab routeTab, VBox fetchBox, Label startLabel, 
+  private void setupRouteTab(Tab routeTab, VBox fetchBox,
+		  					 Label routeDistLabel, Label routeTimeLabel, 
+		  					 Label startLabel, 
 		  					 List<CLabel<geography.GeographicPoint>> stopLabels, 
 		  					 Label pointLabel, Button showButton, Button hideButton, 
 		  					 Button resetButton, Button vButton, 
@@ -297,12 +306,19 @@ public class MapApp extends Application
 
       VBox markerBox = new VBox();
       Label markerLabel = new Label("Selected Marker: ");
-
-
       markerBox.getChildren().add(markerLabel);
-
       markerBox.getChildren().add(pointLabel);
+      
+      VBox routeInfoBox = new VBox();
+      Label routeInfoLabel = new Label("Route Info: ");
+      routeInfoBox.getChildren().add(routeInfoLabel);
+      routeInfoBox.getChildren().add(routeDistLabel);
+      routeInfoBox.getChildren().add(routeTimeLabel);
+      
 
+      VBox.setMargin(routeInfoLabel, new Insets(MARGIN_VAL,MARGIN_VAL,MARGIN_VAL,MARGIN_VAL));
+      VBox.setMargin(routeDistLabel, new Insets(MARGIN_VAL,MARGIN_VAL,MARGIN_VAL,MARGIN_VAL));
+      VBox.setMargin(routeTimeLabel, new Insets(MARGIN_VAL,MARGIN_VAL,MARGIN_VAL,MARGIN_VAL));
       VBox.setMargin(markerLabel, new Insets(MARGIN_VAL,MARGIN_VAL,MARGIN_VAL,MARGIN_VAL));
       VBox.setMargin(pointLabel, new Insets(0,MARGIN_VAL,MARGIN_VAL,MARGIN_VAL));
       VBox.setMargin(fetchBox, new Insets(0,0,MARGIN_VAL*2,0));
@@ -326,6 +342,7 @@ public class MapApp extends Application
       VBox.setMargin(vButton, new Insets(MARGIN_VAL,MARGIN_VAL,MARGIN_VAL,MARGIN_VAL));
       vButton.setDisable(true);
       v.getChildren().add(markerBox);
+      v.getChildren().add(routeInfoBox);
       //v.getChildren().add(resetButton);
 
 

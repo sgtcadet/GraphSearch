@@ -123,7 +123,9 @@ public class RouteController {
                         	}
                     	}
                     		
-                		routeService.displayRoute(startLabel.getItem(), stops, selectedToggle);
+                		routeService.displayRoute(startLabel.getItem(), 
+                								  stops, 
+                								  selectedToggle);
                 		break;
                 	}
             	}
