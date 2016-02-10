@@ -112,17 +112,25 @@ public class MarkerManager {
 //        startMarker.setZIndex(STRTDEST_Z);
         changeIcon(startMarker, startURL);
     }
-    public void setStop(geography.GeographicPoint point) {
+    public void setStop(geography.GeographicPoint newStop,
+    					geography.GeographicPoint oldStop) {
     	
-    	Marker thisStopMarker = markerMap.get(point);
+    	Marker newStopMarker = markerMap.get(newStop);
 //            destinationMarker.setZIndex(DEFAULT_Z);
     	if (stopMarkers == null) {
     		
     		stopMarkers = new ArrayList<Marker>();
     	}
     	
-        changeIcon(thisStopMarker, stopURL);
-    	stopMarkers.add(thisStopMarker);
+    	if (oldStop != null) {
+    		
+        	Marker oldStopMarker = markerMap.get(oldStop);
+        	changeIcon(oldStopMarker, markerURL);
+        	stopMarkers.remove(oldStopMarker);
+    	}
+    	
+        changeIcon(newStopMarker, stopURL);
+    	stopMarkers.add(newStopMarker);
 //        destinationMarker.setZIndex(STRTDEST_Z);
     }
 

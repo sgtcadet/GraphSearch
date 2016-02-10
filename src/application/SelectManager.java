@@ -82,11 +82,12 @@ public class SelectManager {
 		}
 	}
 
-	public void setStop() {
+	public void setStop(int stopButtonNumber) {
 		if(pointLabel.getItem() != null) {
-        	GeographicPoint point = pointLabel.getItem();
-    		stopLabels.get(0).setItem(point);
-    		markerManager.setStop(point);
+        	GeographicPoint newStop = pointLabel.getItem();
+        	GeographicPoint oldStop = stopLabels.get(stopButtonNumber-1).getItem();
+    		stopLabels.get(stopButtonNumber-1).setItem(newStop);
+    		markerManager.setStop(newStop, oldStop);
 		}
 	}
 

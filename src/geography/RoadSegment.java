@@ -44,8 +44,12 @@ public class RoadSegment {
 	 * @return
 	 */
 	public List<GeographicPoint> getPoints(GeographicPoint start, 
-											GeographicPoint end)
+										   GeographicPoint end)
 	{
+		System.out.println("Start is: " + start);
+		System.out.println("End is: " + end);
+		System.out.println("Point 1 is: " + point1);
+		System.out.println("Point 2 is: " + point2);
 		List<GeographicPoint> allPoints = new ArrayList<GeographicPoint>();
 		if (point1.equals(start) && point2.equals(end)) {
 			allPoints.add(start);

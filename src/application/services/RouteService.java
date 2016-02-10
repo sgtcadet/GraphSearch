@@ -29,6 +29,11 @@ import gmapsfx.shapes.Polyline;
 import javafx.scene.control.Button;
 import roadgraph.PathObject;
 
+/** 
+ * @author UCSD MOOC development team
+ * @author ryanwilliamconnor
+ */
+
 public class RouteService {
 	private GoogleMap map;
 
@@ -99,7 +104,7 @@ public class RouteService {
     	return routeLine != null;
     }
     public boolean displayRoute(geography.GeographicPoint start, 
-    							geography.GeographicPoint end, 
+    							List<geography.GeographicPoint> stops, 
     							int toggle) {
         if(routeLine == null) {
         	if(markerManager.getVisualization() != null) {
@@ -107,36 +112,96 @@ public class RouteService {
         	}
 
         	if(toggle == RouteController.DIJ || toggle == RouteController.A_STAR ||
-        			toggle == RouteController.BFS) {
+        	   toggle == RouteController.BFS || toggle == RouteController.GREEDYTSP ||
+        	   toggle == RouteController._2OPTTSP) {
+        		
         		markerManager.initVisualization();
             	Consumer<geography.GeographicPoint> nodeAccepter = 
             			markerManager.getVisualization()::acceptPoint;
-            	PathObject servicePath = null;
-            	List<geography.GeographicPoint> path = null;
-            	if (toggle == RouteController.BFS) {
-            		servicePath = 
-            				markerManager.getDataSet().getGraph().bfs(start, 
-            														  end, 
-            														  nodeAccepter);
-            		path = servicePath.getPath();
+            	List<geography.GeographicPoint> path = 
+                		new ArrayList<geography.GeographicPoint>();
+            	if (toggle == RouteController.BFS ||
+            		toggle == RouteController.DIJ ||
+            		toggle == RouteController.A_STAR) {
+            		
+                	PathObject servicePath;
+        			path.add(start);
+        			System.out.println("Added " + start + " to path");
+            		
+        			geography.GeographicPoint stop;
+        			
+        			for (int i = 0; i < stops.size(); i++) {
+        				
+        				stop = stops.get(i);
+        				
+            			if (i > 0) {
+            				start = stops.get(i-1);
+            			}
+            			
+            			if (toggle == RouteController.BFS) {
+            				
+                			servicePath = 
+                    				markerManager.getDataSet().getGraph().bfs(start, 
+                    														  stop, 
+                    														  nodeAccepter);
+            			}
+            			else if (toggle == RouteController.DIJ) {
+            				
+                			servicePath = 
+                    				markerManager.getDataSet().getGraph().dijkstra(start, 
+                    															   stop, 
+                    															   nodeAccepter);
+            			}
+            			else {
+            				
+            				servicePath = 
+                    				markerManager.getDataSet().getGraph().aStarSearch(start, 
+                    															      stop, 
+                    															      nodeAccepter,
+                    															      new HashMap<Double,HashMap<Double,Integer>>());
+            			}
+            			
+                		for (int j = 1; j < servicePath.getPath().size(); j++) {
+                			
+                			System.out.println("Added " + servicePath.getPath().get(j) + " to path");
+                    		path.add(servicePath.getPath().get(j));
+                		}
+            		}
             	}
-            	else if (toggle == RouteController.DIJ) {
-            		servicePath = 
-            				markerManager.getDataSet().getGraph().dijkstra(start, 
-            															   end, 
-            															   nodeAccepter);
-            		path = servicePath.getPath();
-            	}
-            	else if (toggle == RouteController.A_STAR) {
-            		servicePath = 
-            				markerManager.getDataSet().getGraph().aStarSearch(start, 
-            																  end, 
-            																  nodeAccepter,
-            																  new HashMap<Double,HashMap<Double,Integer>>());
-            		path = servicePath.getPath();
+            	else {
+
+            		List<PathObject> allServicePaths;
+            		
+            		if (toggle == RouteController.GREEDYTSP) {
+            		
+            			allServicePaths = 
+            				markerManager.getDataSet().getGraph().greedyShortestCycle(start, 
+            																		  stops, 
+            																		  nodeAccepter, 
+            																		  new HashMap<Double,HashMap<Double,Integer>>());
+            		}
+            		else {
+            			
+            			allServicePaths = 
+                			markerManager.getDataSet().getGraph().twoOptShortestCycle(start, 
+                																	  stops, 
+                																	  new HashMap<Double,HashMap<Double,Integer>>());
+            		}
+            		
+        			path.add(start);
+        			
+            		for (PathObject servPath: allServicePaths) {
+            			
+            			// do not add the start of this path to the full route
+            			// it was already added as the last stop in the previous path
+            			for (int i = 1; i < servPath.getPath().size(); i++) {
+            			
+                			path.add(servPath.getPath().get(i));
+            			}
+            		}
             	}
 
-            	if(path == null) {
+            	if(path.size() < 1) {
                     // System.out.println("In displayRoute : PATH NOT FOUND");
                     MapApp.showInfoAlert("Routing Error : ", "No path found");
                 	return false;
@@ -172,7 +237,7 @@ public class RouteService {
     	geography.GeographicPoint curr;
     	geography.GeographicPoint next;
 
-    	geography.RoadSegment chosenSegment = null;;
+    	geography.RoadSegment chosenSegment = null;
 
         for(int i = 0; i < path.size() - 1; i++) {
             double minLength = Double.MAX_VALUE;
@@ -180,6 +245,7 @@ public class RouteService {
         	next = path.get(i+1);
 
         	if(markerManager.getDataSet().getRoads().containsKey(curr)) {
+        		// get the roads heading out from the current intersection
         		HashSet<geography.RoadSegment> segments = 
         				markerManager.getDataSet().getRoads().get(curr);
         		Iterator<geography.RoadSegment> it = segments.iterator();
@@ -199,6 +265,7 @@ public class RouteService {
                 }
 
                 if(chosenSegment != null) {
+                	
                     segmentList = chosenSegment.getPoints(curr, next);
                     for(geography.GeographicPoint point : segmentList) {
                         retVal.add(new LatLong(point.getX(), point.getY()));

@@ -127,6 +127,7 @@ public class MapApp extends Application
     List<Button> stopButtons = new ArrayList<Button>();
     for (int i = 0; i < RouteController.MAXSTOPS; i++) {
     	stopButtons.add(new Button("Stop " + (i+1)));
+    	//stopButtons.get(i).setId(Integer.toString(i));
     }
     // Radio buttons for selecting search algorithm
     final ToggleGroup group = new ToggleGroup();

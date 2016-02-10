@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import application.MapApp;
 import application.MarkerManager;
@@ -99,12 +101,32 @@ public class RouteController {
 
 	private void setupDisplayButtons() {
 		displayButton.setOnAction(e -> {
-            if(startLabel.getItem() != null && stopLabels.get(0).getItem() != null) {
-        			routeService.displayRoute(startLabel.getItem(), stopLabels.get(0).getItem(), selectedToggle);
-            }
-            else {
+            if(startLabel.getItem() == null) {
+            	
             	MapApp.showErrorAlert("Route Display Error", 
-            						  "Choose a start point and at least one stop.");
+						  "Choose a start point.");
+            }
+            else{
+            	
+            	for (CLabel<geography.GeographicPoint> stopLabel : stopLabels) {
+            		
+                	if (stopLabel.getItem() != null) {
+                		
+                    	List<geography.GeographicPoint> stops = 
+                    			new ArrayList<geography.GeographicPoint>();
+                    	
+                    	for (CLabel<geography.GeographicPoint> label : stopLabels) {
+                    		
+                        	if (label.getItem() != null) {
+                        		
+                        		stops.add(label.getItem());
+                        	}
+                    	}
+                    		
+                		routeService.displayRoute(startLabel.getItem(), stops, selectedToggle);
+                		break;
+                	}
+            	}
             }
 		});
 
@@ -130,11 +152,21 @@ public class RouteController {
             //System.out.println();
             selectManager.setStart();
     	});
+    	
+    	Pattern stopButtonPattern = Pattern.compile("[0-9]+");
 
     	for (Button stopButton : stopButtons) {
     		
     		stopButton.setOnAction( e-> {
-    			selectManager.setStop();
+    			
+    	    	Matcher stopButtonMatcher;
+    	    	int stopButtonNum;
+    			
+    			stopButtonMatcher =  stopButtonPattern.matcher(stopButton.getText());
+    			stopButtonMatcher.find();
+    			stopButtonNum = Integer.parseInt(stopButtonMatcher.group());
+
+    			selectManager.setStop(stopButtonNum);
     		});
     	}
     }
