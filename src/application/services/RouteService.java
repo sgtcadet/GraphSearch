@@ -120,17 +120,19 @@ public class RouteService {
             			markerManager.getVisualization()::acceptPoint;
             	List<geography.GeographicPoint> path = 
                 		new ArrayList<geography.GeographicPoint>();
+            	int numStops = stops.size();
+            	int stopNum = 1;
+            	
             	if (toggle == RouteController.BFS ||
             		toggle == RouteController.DIJ ||
             		toggle == RouteController.A_STAR) {
             		
                 	PathObject servicePath;
         			path.add(start);
-        			System.out.println("Added " + start + " to path");
             		
         			geography.GeographicPoint stop;
         			
-        			for (int i = 0; i < stops.size(); i++) {
+        			for (int i = 0; i < numStops; i++) {
         				
         				stop = stops.get(i);
         				
@@ -161,10 +163,18 @@ public class RouteService {
                     															      new HashMap<Double,HashMap<Double,Integer>>());
             			}
             			
+            			geography.GeographicPoint hop;
                 		for (int j = 1; j < servicePath.getPath().size(); j++) {
                 			
-                			System.out.println("Added " + servicePath.getPath().get(j) + " to path");
-                    		path.add(servicePath.getPath().get(j));
+                			hop = servicePath.getPath().get(j);
+                			
+                    		path.add(hop);
+                    		
+                			if (stops.contains(hop)) {
+                				
+                				markerManager.setNumStop(hop, stopNum);
+                				stopNum++;
+                			}
                 		}
             		}
             	}
@@ -190,13 +200,27 @@ public class RouteService {
             		
         			path.add(start);
         			
-            		for (PathObject servPath: allServicePaths) {
+        			PathObject servPath;
+        			
+        			// do not access the "meta path"
+            		for (int i = 0; i < allServicePaths.size()-1; i++) {
             			
+            			servPath = allServicePaths.get(i);
+            			
+            			geography.GeographicPoint hop;
             			// do not add the start of this path to the full route
             			// it was already added as the last stop in the previous path
-            			for (int i = 1; i < servPath.getPath().size(); i++) {
+            			for (int j = 1; j < servPath.getPath().size(); j++) {
             			
-                			path.add(servPath.getPath().get(i));
+            				hop = servPath.getPath().get(j);
+                			path.add(hop);
+                			
+                			if (stops.contains(hop)) {
+                				
+                				System.out.println("Setting icon " + stopNum);
+                				markerManager.setNumStop(hop, stopNum);
+                				stopNum++;
+                			}
             			}
             		}
             	}
