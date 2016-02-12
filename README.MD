@@ -14,9 +14,9 @@ The shortest path is calculated in terms of trip duration and assumes the user i
 
 # Technologies Used
 
-The graph data structures and path finding algorithms are implemented in Java.
+The bulk of the program, including the graph data structures and path finding algorithms, are implemented in Java.
 
-The GUI was built using JavaFX and JavaScript.
+The GUI was built mainly in Java using JavaFX and GMapsFX, with a little HTML, JavaScript, and CSS.
 
 # My Work on This Project
 
@@ -58,20 +58,19 @@ If the numbered stop icons do not display properly, try zooming in or out.  This
 
 Also, the markers don't always refresh properly after selection and route calculation.  My only known fix was to restart the application.
 
+Further, see the below section on "using this application" -- currently, the GUI only works when this project is run using the Eclipse IDE.
+
 # Using this Application
 
 To run the application as provided:
 
-1. Download the file in this repo named "PathFindingApp.tar".
-2. Unzip all the files in PathFindingApp.tar into the same directory on your computer.
-3. In that directory, run the file named "PathFindingApp.jar".
-
-To inspect and make changes to the provided code, you can:
+At this time, the only way to run the code is to:
 
 1. Download all the files in this repo into a new directory on your computer.
-2. Make any desired changes.
+2. Import the project into the [Eclipse IDE](http://www.eclipse.org/) (link provided in case you need to download).
 3. Run the file named "MapApp.java" as a Java application.
-	- I assume if you want to make changes to the code, you are comfortable with figuring out how to accomplish this step.
+
+I tried to make a standalone application by exporting the project as a JAR from Eclipse, but the Google Map does not load into the JAR.  I have contact the UCSD development team and scoured the internet about this issue to no avail.  Please see my [question on stackoverflow.com](http://stackoverflow.com/questions/35341779/google-maps-api-works-in-eclipse-not-when-exported-as-a-jar) if you are interesting in helping solve this issue.  In fact, at the time of this writing, this question is the #1 hit on Google (!!) for the search term "javafx google map does +not work in JAR".  I would love it if you [emailed me](mailto:ryanwc13@gmail.com) with a solution.
 
 ### Loading your Own Data
 
@@ -123,21 +122,21 @@ which will help to test and demonstrate your implementations.
 Below are the files introduced in each week and used in each week
 of the course. See file for description...
 
-Week 1 : Introduction to the course and graphs
-==============================================
+**Week 1 : Introduction to the course and graphs**)
+
 basicgraph.Graph.java
 basicgraph.GraphAdjList.java
 basicgraph.GraphAdjMatrix.java
 
-Week 2 : Class design and simple graph search
-==================================================
+**Week 2 : Class design and simple graph search**
+
 roadgraph.MapGraph.java
 week2example.Maze.java
 week2example.MazeLoader.java
 week2example.MazeNode.java
 
-Utility files
-=============
+**Utility files**
+
 geography.GeographicPoint.java
 geography.RoadSegment.java
 util.GraphLoader.java
