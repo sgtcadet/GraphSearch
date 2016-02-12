@@ -50,6 +50,14 @@ The user can select five different algorithms to calculate a shortest path:
 			- Re-building the cycle takes one-way streets into account.  That is, swapping path pair (S1, S2), (S3, S4) out for new paths (S1, S3), (S2, S4) means some other existing paths must be reversed.  If the paths-to-be-reversed have one-way streets, the reversed paths may have different travel time than the non-reversed paths.  So, if reversing those paths results in more time lost than the path swap saves time, the new path is rejected.
 		- In my only concrete test of this algorithm, the algorithm gave a solution within 1.5% of optimal in 0.005 seconds for an eight-city world tour.
 
+Here is a visual comparison of the TSP algorithms.
+
+GreedyTSP:
+![GreedyTSPNYC]("GreedyTSP NYC".png)
+
+Greedy2OptTSP:
+![Greedy2OPTTSPNYC]("2OptTSP NYC".png)
+
 # A Note on the GUI
 
 I improved the provided GUI as was reasonable, considering my role on the project was to develop the class structure for representing the geographic location and to implement the path algorithms, but the GUI is still a bit buggy.
