@@ -120,7 +120,7 @@ public class RouteService {
 
         	if(toggle == RouteController.DIJ || toggle == RouteController.A_STAR ||
         	   toggle == RouteController.BFS || toggle == RouteController.GREEDYTSP ||
-        	   toggle == RouteController._2OPTTSP) {
+        	   toggle == RouteController._GREEDY2OPTTSP) {
         		
         		markerManager.initVisualization();
             	Consumer<geography.GeographicPoint> nodeAccepter = 
@@ -192,11 +192,6 @@ public class RouteService {
             			pathDistance += servicePath.getLength();
             			pathTime += servicePath.getTravelTime();
             			
-            			NumberFormat pathFormat = new DecimalFormat("#.##");
-            			dispDistance = dispDistance + pathFormat.format(pathDistance);
-            			dispTime = dispTime + pathFormat.format(pathTime);
-            			
-                		selectManager.setRouteInfo(dispDistance, dispTime);
             		}
             	}
             	else {
@@ -246,12 +241,6 @@ public class RouteService {
             		
             		pathDistance = allServicePaths.get(allServicePaths.size()-1).getLength();
             		pathTime = allServicePaths.get(allServicePaths.size()-1).getTravelTime();
-            		
-        			NumberFormat pathFormat = new DecimalFormat("#.##");
-        			dispDistance = dispDistance + pathFormat.format(pathDistance);
-        			dispTime = dispTime + pathFormat.format(pathTime);
-        			
-            		selectManager.setRouteInfo(dispDistance, dispTime);
             	}
 
             	if(path.size() < 1) {
@@ -266,7 +255,11 @@ public class RouteService {
                 //    mapPath.add(new LatLong(point.getX(), point.getY()));
                 //}
 
-
+       			NumberFormat pathFormat = new DecimalFormat("#.##");
+    			dispDistance = dispDistance + pathFormat.format(pathDistance);
+    			dispTime = dispTime + pathFormat.format(pathTime);
+    			
+        		selectManager.setRouteInfo(dispDistance, dispTime);
                 markerManager.setSelectMode(false);
                 return displayRoute(mapPath);
     		}

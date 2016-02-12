@@ -49,10 +49,13 @@ public class GoogleMap extends JavascriptObject {
 
     public GoogleMap() {
         super(GMapObjectType.MAP, divArg);
+        System.out.println("test GoogleMap with no args");
     }
 
     public GoogleMap(MapOptions mapOptions) {
         super(GMapObjectType.MAP, new Object[]{divArg, mapOptions});
+        System.out.println("test GoogleMap with mapOptions");
+        System.out.println(divArg);
     }
 
     public void setZoom(int zoom) {
@@ -130,6 +133,7 @@ public class GoogleMap extends JavascriptObject {
 
     public void addMarker(Marker marker) {
         marker.setMap(this);
+        System.out.println("test added marker to map");
     }
 
     public void removeMarker(Marker marker) {
@@ -149,6 +153,7 @@ public class GoogleMap extends JavascriptObject {
     }
 
     public Projection getProjection() {
+    	System.out.println("getting projection");
         Object obj = invokeJavascript("getProjection");
         return (obj == null) ? null : new Projection((JSObject) obj);
     }
@@ -249,6 +254,7 @@ public class GoogleMap extends JavascriptObject {
                 + "function(event) {document.jsHandlers.handleUIEvent('" + key + "', event);});";//.latLng
         //System.out.println("addUIEventHandler mcall: " + mcall);
         runtime.execute(mcall);
+        System.out.println("Added mouse event handler to map");
     }
 
     /**

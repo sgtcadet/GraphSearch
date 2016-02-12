@@ -21,6 +21,7 @@ public class MaxZoomService extends JavascriptObject {
     
     public MaxZoomService() {
         super(GMapObjectType.MAX_ZOOM_SERVICE);
+        System.out.println("test maxzoomservice");
     }
     
     public void getMaxZoomAtLatLng(LatLong loc, MaxZoomServiceCallback callback) {

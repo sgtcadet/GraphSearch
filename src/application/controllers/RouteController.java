@@ -36,7 +36,7 @@ import javafx.util.StringConverter;
 
 public class RouteController {
 	// Strings for slider labels
-	public static final int _2OPTTSP = 5;
+	public static final int _GREEDY2OPTTSP = 5;
 	public static final int GREEDYTSP = 4;
 	public static final int BFS = 3;
     public static final int A_STAR = 2;
@@ -193,8 +193,8 @@ public class RouteController {
             else if(group.getSelectedToggle().getUserData().equals("GreedyTSP")) {
             	selectedToggle = GREEDYTSP;
             }
-            else if(group.getSelectedToggle().getUserData().equals("2OptTSP")) {
-            	selectedToggle = _2OPTTSP;
+            else if(group.getSelectedToggle().getUserData().equals("Greedy2OptTSP")) {
+            	selectedToggle = _GREEDY2OPTTSP;
             }
             else {
             	System.err.println("Invalid radio button selection");

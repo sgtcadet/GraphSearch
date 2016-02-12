@@ -36,6 +36,8 @@ public class TestApp extends Application
 
     public void mapInitialized() {
     	LatLong center = new LatLong(34.0219, -118.4814);
+    	
+    	System.out.println("test map initialized");
 
     	MapOptions options = new MapOptions();
 		options.center(center)

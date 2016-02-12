@@ -26,6 +26,7 @@ public class JavaFxWebEngine implements IWebEngine {
      */
     public JavaFxWebEngine( WebEngine engine ) {
         this.webEngine = engine;
+        System.out.println("test fx webengine");
     }
 
     

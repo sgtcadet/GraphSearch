@@ -11,6 +11,7 @@ public class MapMaker {
 
     public MapMaker(float[] bounds) {
         this.bounds = bounds;
+        System.out.println("test mapmaker");
     }
 
     public boolean parseData(String filename) {

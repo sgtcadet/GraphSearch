@@ -43,6 +43,7 @@ public class ArrayTester extends Application {
     @Override
     public void start(final Stage stage) throws Exception {
 
+        System.out.println("test ArrayTester");
         webview = new WebView();
         webengine = new JavaFxWebEngine(webview.getEngine());
         JavascriptRuntime.setDefaultWebEngine( webengine );
@@ -60,6 +61,7 @@ public class ArrayTester extends Application {
                     }
                 });
         webengine.load(getClass().getResource("/html/arrays.html").toExternalForm());
+        System.out.println("after loading arrays");
 
         Scene scene = new Scene(bp, 600, 600);
 

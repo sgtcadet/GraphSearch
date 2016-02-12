@@ -48,10 +48,12 @@ public class GoogleMapView extends AnchorPane {
 
     public GoogleMapView() {
         this(false);
+        System.out.println("test GoogleMapView with no args");
     }
 
     public GoogleMapView(boolean debug) {
         this(null, debug);
+        System.out.println("test GoogleMapView with debug");
     }
 
     /**
@@ -101,6 +103,7 @@ public class GoogleMapView extends AnchorPane {
      */
     public GoogleMapView(String mapResourcePath) {
         this(mapResourcePath, false);
+        System.out.println("test GoogleMapView with mapResourcePath");
     }
 
     /**
@@ -112,6 +115,8 @@ public class GoogleMapView extends AnchorPane {
      */
     public GoogleMapView(String mapResourcePath, boolean debug) {
         String htmlFile;
+        System.out.println("test GoogleMapView with mapResourePath and debug");
+        System.out.println("mapResourcePath is: " + mapResourcePath);
         if (mapResourcePath == null) {
             if (debug) {
                 htmlFile = "/html/maps-debug.html";
@@ -121,6 +126,8 @@ public class GoogleMapView extends AnchorPane {
         } else {
             htmlFile = mapResourcePath;
         }
+        
+        System.out.println("mapResourcePath is now: " + htmlFile);
         webview = new WebView();
         //System.out.println("webview : " + webview);
         webengine = new JavaFxWebEngine(webview.getEngine());
@@ -148,6 +155,7 @@ public class GoogleMapView extends AnchorPane {
                         }
                     }
                 });
+        System.out.println("loading " + getClass().getResource(htmlFile).toExternalForm());
         //System.out.println("web engine before load : " + webengine);
         webengine.load(getClass().getResource(htmlFile).toExternalForm());
         //System.out.println("AFTER LOAD");
@@ -181,13 +189,17 @@ public class GoogleMapView extends AnchorPane {
 
     public GoogleMap createMap(MapOptions mapOptions) {
         checkInitialized();
+        System.out.println("creating map with mapOptions: " + mapOptions);
         map = new GoogleMap(mapOptions);
         map.addStateEventHandler(MapStateEventType.projection_changed, () -> {
             if (map.getProjection() != null) {
                 mapResized();
                 fireMapReadyListeners();
+                System.out.println("projection is now " + map.getProjection());
             }
         });
+        
+        System.out.println("Created map is: " + map.toString());
 
         return map;
     }

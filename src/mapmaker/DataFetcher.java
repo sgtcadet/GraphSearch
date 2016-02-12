@@ -12,6 +12,7 @@ public class DataFetcher {
     private String query;
     public DataFetcher(float[] bounds) {
         this.query = this.constructQuery(bounds);
+        System.out.println("test datafetcher");
     }
 
     public JsonObject getData() {

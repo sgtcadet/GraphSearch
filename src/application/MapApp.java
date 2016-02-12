@@ -78,8 +78,9 @@ public class MapApp extends Application
 
         // set up map
 		mapComponent = new GoogleMapView();
+		System.out.println("Created the GoogleMapView");
 		mapComponent.addMapInitializedListener(this);
-
+		System.out.println("added map initialized listener to the GoogleMapView");
 		// initialize tabs for data fetching and route controls
     Tab routeTab = new Tab("Routing");
 
@@ -94,6 +95,7 @@ public class MapApp extends Application
     	cb.requestFocus();
     });
 
+    
     HBox fetchControls = getBottomBox(tf, fetchButton);
 
     VBox fetchBox = getFetchBox(displayButton, cb);
@@ -115,7 +117,7 @@ public class MapApp extends Application
         stopLabels.add(new CLabel<geography.GeographicPoint>("Empty.", 
 		  		 new ImageView(dImage), null));
     }
-
+    
     //TODO -- hot fix
     startLabel.setMinWidth(180);
     for (Label stopLabel : stopLabels) {
@@ -166,6 +168,7 @@ public class MapApp extends Application
     tp.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
     // initialize Services and controllers after map is loaded
+    System.out.println("initialize services after map is loaded");
     mapComponent.addMapReadyListener(() -> {
         GeneralService gs = new GeneralService(mapComponent, manager, markerManager);
         RouteService rs = new RouteService(mapComponent, manager, markerManager);
@@ -185,10 +188,12 @@ public class MapApp extends Application
 		bp.setCenter(mapComponent);
 
 		Scene scene = new Scene(bp);
+	System.out.println("set css styling");
     scene.getStylesheets().add("html/routing.css");
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
+	//System.out.println("map projection is " + map.getProjection());			
 	}
 
 
@@ -197,9 +202,9 @@ public class MapApp extends Application
 
 		LatLong center = new LatLong(32.8810, -117.2380);
 
-
 		// set map options
 		MapOptions options = new MapOptions();
+		System.out.println("created map options");
 		options.center(center)
 		       .mapMarker(false)
 		       .mapType(MapTypeIdEnum.ROADMAP)
@@ -214,11 +219,11 @@ public class MapApp extends Application
 		       .zoomControl(true);
 
 		// create map;
+		System.out.println("creating map");
 		map = mapComponent.createMap(options);
         setupJSAlerts(mapComponent.getWebView());
-
-
-
+		System.out.println("mapInitialized done");
+		//System.out.println("map projection is " + map.getProjection());		
 	}
 
 
@@ -385,18 +390,18 @@ public class MapApp extends Application
 	  RadioButton rbGreedyTSP = new RadioButton("GreedyTSP");
 	  rbGreedyTSP.setUserData("GreedyTSP");
 	  
-	  RadioButton rb2OptTSP = new RadioButton("2OptTSP");
-	  rb2OptTSP.setUserData("2OptTSP");
+	  RadioButton rbGreedy2OptTSP = new RadioButton("Greedy2OptTSP");
+	  rbGreedy2OptTSP.setUserData("Greedy2OptTSP");
 	  
 
 	  rbB.setToggleGroup(group);
 	  rbD.setToggleGroup(group);
 	  rbA.setToggleGroup(group);
 	  rbGreedyTSP.setToggleGroup(group);
-	  rb2OptTSP.setToggleGroup(group);
+	  rbGreedy2OptTSP.setToggleGroup(group);
 	  return new LinkedList<RadioButton>(Arrays.asList(rbB, rbD, rbA, 
 			  										   rbGreedyTSP, 
-			  										   rb2OptTSP) );
+			  										   rbGreedy2OptTSP) );
 	}
 
 

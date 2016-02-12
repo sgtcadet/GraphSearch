@@ -27,6 +27,7 @@ public class Projection extends JavascriptObject {
     
     public Projection(JSObject obj) {
         super(GMapObjectType.PROJECTION, obj);
+    	System.out.println("projection created " + obj);
     }
     
     public GMapPoint fromLatLngToPoint(LatLong loc) {

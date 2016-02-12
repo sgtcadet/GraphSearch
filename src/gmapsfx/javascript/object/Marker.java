@@ -37,6 +37,7 @@ public class Marker extends JavascriptObject {
     public Marker(MarkerOptions markerOptions) {
         super(GMapObjectType.MARKER, markerOptions);
         this.markerOptions = markerOptions;
+        System.out.println("test marker");
     }
 
 

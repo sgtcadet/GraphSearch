@@ -29,6 +29,7 @@ public enum Animation {
 
     Animation(String typeString) {
         this.typeString = typeString;
+        System.out.println("test animation");
     }
 
     @Override

@@ -34,6 +34,7 @@ public class MapTypeIdEnum extends JavascriptEnum {
 
     protected MapTypeIdEnum(String value) {
         super(MAP_ENUM, value);
+        System.out.println("test maptypeidenum " + value);
     }
 
     @Override
