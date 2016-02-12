@@ -53,10 +53,10 @@ The user can select five different algorithms to calculate a shortest path:
 Here is a visual comparison of the TSP algorithms.
 
 GreedyTSP:
-![GreedyTSPNYC]("GreedyTSP NYC".png)
+![GreedyTSPNYC](https://raw.githubusercontent.com/ToolsForInsight/GraphSearch/master/GreedyTSP%20NYC.png)
 
 Greedy2OptTSP:
-![Greedy2OPTTSPNYC]("2OptTSP NYC".png)
+![Greedy2OPTTSPNYC](https://raw.githubusercontent.com/ToolsForInsight/GraphSearch/master/2OptTSP%20NYC.png)
 
 # A Note on the GUI
 
