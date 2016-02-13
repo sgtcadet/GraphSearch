@@ -14,7 +14,7 @@ The shortest path is calculated in terms of trip duration and assumes the user i
 
 # Technologies Used
 
-The bulk of the program, including the graph data structures and path finding algorithms, are implemented in Java.
+The core of the program, including the graph data structures and path finding algorithms, is implemented in Java.
 
 The GUI was built mainly in Java using JavaFX and GMapsFX, with a little HTML, JavaScript, and CSS.
 
@@ -64,19 +64,19 @@ I improved the provided GUI as was reasonable, considering my role on the projec
 
 If the numbered stop icons do not display properly, try zooming in or out.  This seems to fix the problem and you can go back to the original zoom level.
 
-Also, the markers don't always refresh properly after selection and route calculation.  My only known fix was to restart the application.
+Also, the markers don't always refresh properly after selection and route calculation.  If the markers become unintelligble, restart the application.
 
 Further, see the below section on "using this application" -- currently, the GUI only works when this project is run using the Eclipse IDE.
 
 # Using this Application
 
-To run the application as provided:
-
-At this time, the only way to run the code is to:
+At this time, the easiest way to run the code is to:
 
 1. Download all the files in this repo into a new directory on your computer.
-2. Import the project into the [Eclipse IDE](http://www.eclipse.org/) (link provided in case you need to download).
+2. Import the the directory as a project into the [Eclipse IDE](http://www.eclipse.org/) (link provided in case you need to download Eclipse).
 3. Run the file named "MapApp.java" as a Java application.
+
+If you want to use another IDE or compile the program manually, Google is your friend.
 
 I tried to make a standalone application by exporting the project as a JAR from Eclipse, but the Google Map does not load into the JAR.  I have contact the UCSD development team and scoured the internet about this issue to no avail.  Please see my [question on stackoverflow.com](http://stackoverflow.com/questions/35341779/google-maps-api-works-in-eclipse-not-when-exported-as-a-jar) if you are interesting in helping solve this issue.  In fact, at the time of this writing, this question is the #1 hit on Google (!!) for the search term "javafx google map does +not work in JAR".  I would love it if you [emailed me](mailto:ryanwc13@gmail.com) with a solution.
 
@@ -101,64 +101,54 @@ Times are displayed in minutes, and distances are displayed in miles.
 
 # Starter Code
 
-*The following section shows the UCSD team's notes about the starter code that they provided.*
+*The following section shows the UCSD team's notes about the starter code that they provided.  The starter code is the initial commit of this repo.*
 
-/-------------------------------------------------------------------------
-/ Starter Code and GUI Application for Course 3 in the
-/ Java Programming: Object Oriented Design of 
-/ Data Structures Specialization:
-/
-/ Advanced Data Structures in Java
-/ https://www.coursera.org/learn/advanced-data-structures
-/
-/ Authored by UCSD MOOC Team:
-/ Mia Minnes, Christine Alvarado, Leo Porter, Alec Brickner
-/ and Adam Setters
-/
-/ Date: 12/16/2015
-/-------------------------------------------------------------------------
+**Starter Code and GUI Application for Course 3 in the Java Programming: Object Oriented Design of Data Structures Specialization: Advanced Data Structures in Java**
 
----------------------------------------------------------[ DESCRIPTION ]--
+https://www.coursera.org/learn/advanced-data-structures
 
-The files provided are skeleton code, as well as grading previews and 
-testing files to be used in completing the course programming 
-assignments. Additionally, you are provided a runnable JavaFX program 
-which will help to test and demonstrate your implementations.
+Authored by UCSD MOOC Team:
+Mia Minnes, Christine Alvarado, Leo Porter, Alec Brickner and Adam Setters
 
--------------------------------------------------------[ FILES BY WEEK ]--
+Date: 12/16/2015
+
+**DESCRIPTION**
+
+The files provided are skeleton code, as well as grading previews and testing files to be used in completing the course programming assignments. Additionally, you are provided a runnable JavaFX program which will help to test and demonstrate your implementations.
+
+**FILES BY WEEK**
 
 Below are the files introduced in each week and used in each week
 of the course. See file for description...
 
-**Week 1 : Introduction to the course and graphs**)
+*Week 1 : Introduction to the course and graphs*
 
 basicgraph.Graph.java
 basicgraph.GraphAdjList.java
 basicgraph.GraphAdjMatrix.java
 
-**Week 2 : Class design and simple graph search**
+*Week 2 : Class design and simple graph search*
 
 roadgraph.MapGraph.java
 week2example.Maze.java
 week2example.MazeLoader.java
 week2example.MazeNode.java
 
-**Utility files**
+*Utility files*
 
 geography.GeographicPoint.java
 geography.RoadSegment.java
 util.GraphLoader.java
 
----------------------------------------------------------------[ SETUP ]-- 
+**SETUP** 
 
 Importing Project into eclipse:
-	1. Create a new Java Project in your workspace
-	2. Import the starter files:
-	  File -> Import -> Select "File System" -> Next -> Browse and set 
-	  root directory to folder contents of zip were extracted to -> Finish
 
-Feel free to use another IDE or manually compile and run your programs.
-If you need help, google is your friend.
+1. Create a new Java Project in your workspace
+2. Import the starter files:
+	- File -> Import -> Select "File System" -> Next -> Browse and set root directory to folder contents of zip were extracted to -> Finish
+
+Feel free to use another IDE or manually compile and run your programs.  If you need help, google is your friend.
 
 # License
 
