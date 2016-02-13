@@ -2,7 +2,7 @@
 
 This application is a re-creation of Google Maps' path finding capabilities.  Its GUI component interfaces with Google Maps.
 
-This application will show and tell you the shortest path from a start intersection to up to seven other intersections traveled in order.
+This application will show and tell you the shortest path from a start intersection to up to seven other intersections traveled in order.  Times are displayed in minutes, and distances are displayed in miles.
 
 This application will also show and tell you a path that is very close to the shortest path from a start intersection that visits up to seven other intersections exactly once and ends back at the starting location (the Traveling Salesperson Problem (TSP)).
 
@@ -10,7 +10,7 @@ This application will also show and tell you a path that is very close to the sh
 
 The purpose of this application is to 1) give a user the shortest path, in terms of trip duration, from a start location to up to seven other locations (and optionally back to the start location) and 2) demonstrate the differences between various graph search algorithms.
 
-The user can select a pre-loaded map, load their own map, select a start location, select up to seven stop locations, and select one of five pathing algorithms.  The GUI will then visually display the shortest path calculated with the selected algorithm, visually number the stops, and show some stats about the path.
+The user can select a pre-loaded map, load their own map, select a start location, select up to seven stop locations, and select one of five pathing algorithms.  The GUI will then visually display the shortest path calculated with the selected algorithm, visualize the number the stops, and show some stats about the path.
 
 The shortest path is calculated in terms of trip duration and assumes the user is driving.  Time traveled on a road is determined by the speed limit of that road, which is in turn determined by the road's type.  Speed limits apply as you might expect.  For example, major highways have a speed limit of 70 miles per hour and residential roads have a speed limit of 25 miles per hour.  Time traveled does NOT currently take traffic into account.
 
@@ -52,7 +52,7 @@ The user can select five different algorithms to calculate a shortest path:
 			- Re-building the cycle takes one-way streets into account.  That is, swapping path pair (S1, S2), (S3, S4) out for new paths (S1, S3), (S2, S4) means some other existing paths must be reversed.  If the paths-to-be-reversed have one-way streets, the reversed paths may have different travel time than the non-reversed paths.  So, if reversing those paths results in more time lost than the path swap saves time, the new path is rejected.
 		- In my only concrete test of this algorithm, the algorithm gave a solution within 1.5% of optimal in 0.005 seconds for an eight-city world tour.
 
-**Visual comparison of the search strategies for the BFS and A* search algorithms run with the same start and stop (a red icon marks an intersection visited by the algorithm):
+__Visual comparison of the search strategies for the BFS and A* algorithms run with the same start and stop (a red icon marks an intersection visited by the algorithm):__
 
 BFS:
 ![BFS](https://raw.githubusercontent.com/ToolsForInsight/GraphSearch/master/BFS%20Viz.png)
@@ -60,7 +60,7 @@ BFS:
 A*:
 ![A*](https://raw.githubusercontent.com/ToolsForInsight/GraphSearch/master/aStar%20Viz.png)
 
-**Visual comparison of the TSP algorithms run with the same eight-location cycle:**
+__Visual comparison of the TSP algorithms run with the same eight-location cycle:__
 
 GreedyTSP:
 ![GreedyTSPNYC](https://raw.githubusercontent.com/ToolsForInsight/GraphSearch/master/GreedyTSP%20NYC.png)
@@ -86,7 +86,7 @@ I tried to make a standalone application by exporting the project as a JAR from 
 
 After the application opens, you will see an interactive Google Map centered on UCSD.
 
-**To use the path search features:**
+*To use the path search features:*
 
 1. Load a map from the drop down menu in the top right or fetch a new map by inputting the file name in lower left.
 2. Select a start location and click the "Start" button on the "Routing" tab.
@@ -96,7 +96,7 @@ After the application opens, you will see an interactive Google Map centered on 
 
 Once you have a route, you can click "Hide Route" to clear the route and select a new algorithm.
 
-**To visualize the path search algorithm:**
+*To visualize the path search algorithm:*
 
 After showing a route, click the "Start Visualization" button to see the intersections the algorithm visits on its way to determining the shortest route to each stop.
 
@@ -110,7 +110,7 @@ If the numbered stop icons do not display properly, try zooming in or out.  This
 
 Also, the map doesn't always refresh properly after marker selection and route calculation.  Currently, there is no "reset" button (I'll add that if I have time), so if the map becomes unusable, you can load another map or restart the application.
 
-**Loading your Own Data**
+### Loading your Own Data
 
 There are utilities in this repo that will convert a map from Google Maps into a form usable by this program.
 
@@ -124,10 +124,6 @@ To load your own data (map), you have two options:
 
 1. Specify the path of the data in the lower left corner of the GUI. You must do this each time you restart the GUI.
 2. Put a new data file in the data/maps/ directory and add the file name to the "mapfiles.list" file in that directory.  This will add the file to the map drop-down menu in the GUI.
-
-# Units of Measure
-
-Times are displayed in minutes, and distances are displayed in miles.
 
 # Starter Code
 
