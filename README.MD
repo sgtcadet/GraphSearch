@@ -10,7 +10,7 @@ This application will also show and tell you a path that is very close to the sh
 
 The purpose of this application is to 1) give a user the shortest path, in terms of trip duration, from a start location to up to seven other locations (and optionally back to the start location) and 2) demonstrate the differences between various graph search algorithms.
 
-The user can select a pre-loaded map, load their own map, select a start location, select up to seven stop locations, and select one of five pathing algorithms.  The GUI will then visually display the shortest path calculated with the selected algorithm, visualize the number the stops, and show some stats about the path.
+The user can select a pre-loaded map, load their own map, select a start location, select up to seven stop locations, and select one of five pathing algorithms.  The GUI will then visually display the shortest path calculated with the selected algorithm with numbered stops and show some stats about the path.
 
 ## Meaning of "Shortest Path" in this Application
 
