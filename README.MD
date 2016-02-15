@@ -12,7 +12,13 @@ The purpose of this application is to 1) give a user the shortest path, in terms
 
 The user can select a pre-loaded map, load their own map, select a start location, select up to seven stop locations, and select one of five pathing algorithms.  The GUI will then visually display the shortest path calculated with the selected algorithm, visualize the number the stops, and show some stats about the path.
 
-The shortest path is calculated in terms of trip duration and assumes the user is driving.  Time traveled on a road is determined by the speed limit of that road, which is in turn determined by the road's type.  Speed limits apply as you might expect.  For example, major highways have a speed limit of 70 miles per hour and residential roads have a speed limit of 25 miles per hour.  Time traveled does NOT currently take traffic into account.
+## Meaning of "Shortest Path" in this Application
+
+"Shortest path" in this application means "the route from one intersection to another that minimizes trip duration for a motor vehicle".
+
+Time traveled on a road is determined solely by the length and speed limit of that road.  So, time traveled does NOT currently take into account variables like "current traffic" or "time of day" (which might in turn influence a "projected traffic" variable).
+
+The speed limit for a road type is as you might expect for the average location in the USA: For example, major highways have a speed limit of 70 miles per hour and residential roads have a speed limit of 25 miles per hour.
 
 # Technologies Used
 
@@ -24,7 +30,7 @@ The GUI was built mainly in Java using JavaFX and GMapsFX, with a little HTML, J
 
 The initial commit for this repository is the starter code as described in the section below.  All subsequent commits are my (Ryan Connor’s) work.  I:
 
-1. Designed and implemented the class structure for represnting roads in a geographic location as a graph.
+1. Designed and implemented the class structure for representing roads in a geographic location as a graph.
 2. Implemented five path finding algorithms (described in a section below).
 3. Modified the GUI to accomodate the two TSP algorithms.
 4. Modified the GUI to accept seven stops instead of just one.
