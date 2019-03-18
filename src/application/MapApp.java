@@ -17,6 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -55,9 +56,9 @@ public class MapApp extends Application
 
 	protected GoogleMapView mapComponent;
 	protected GoogleMap map;
-  protected BorderPane bp;
-  protected Stage primaryStage;
-
+	protected BorderPane bp;
+	protected Stage primaryStage;
+  
   // CONSTANTS
   private static final double MARGIN_VAL = 10;
   private static final double FETCH_COMPONENT_WIDTH = 160.0;
@@ -162,11 +163,10 @@ public class MapApp extends Application
     			  pointLabel, routeButton, hideRouteButton,
         		  resetButton, visualizationButton, startButton, 
         		  stopButtons, searchOptions);
-
+    	
         // add tabs to pane, give no option to close
 		TabPane tp = new TabPane(routeTab);
     tp.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-
     // initialize Services and controllers after map is loaded
     System.out.println("initialize services after map is loaded");
     mapComponent.addMapReadyListener(() -> {
@@ -181,13 +181,17 @@ public class MapApp extends Application
 									manager, markerManager);
         new FetchController(gs, rs, tf, fetchButton, cb, displayButton);
     });
-
+    	
+    ScrollPane sideBarScroller = new ScrollPane(tp);
+    sideBarScroller.setFitToWidth(true);
 		// add components to border pane
-		bp.setRight(tp);
+		//bp.setRight(tp);
+    	bp.setRight(sideBarScroller);
     bp.setBottom(fetchControls);
 		bp.setCenter(mapComponent);
 
 		Scene scene = new Scene(bp);
+			
 	System.out.println("set css styling");
     scene.getStylesheets().add("html/routing.css");
 		primaryStage.setScene(scene);
@@ -286,6 +290,9 @@ public class MapApp extends Application
 		// v is inner container
       VBox v = new VBox();
       h.getChildren().add(v);
+      
+      //v.setLayoutX(5);
+      //v.setSpacing(10);
 
 
 
