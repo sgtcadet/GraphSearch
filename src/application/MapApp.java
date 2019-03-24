@@ -174,7 +174,7 @@ public class MapApp extends Application
         RouteService rs = new RouteService(mapComponent, manager, markerManager);
         //System.out.println("in map ready : " + this.getClass());
         // initialize controllers
-				new RouteController(rs, routeButton, hideRouteButton, 
+				new RouteController(rs, routeButton, hideRouteButton,
 									resetButton, startButton, stopButtons, 
 									group, searchOptions, visualizationButton,
 									startLabel, stopLabels, pointLabel, 
@@ -204,7 +204,7 @@ public class MapApp extends Application
 	@Override
 	public void mapInitialized() {
 
-		LatLong center = new LatLong(32.8810, -117.2380);
+		LatLong center = new LatLong(18.2147259,-77.4486513);
 
 		// set map options
 		MapOptions options = new MapOptions();
@@ -219,7 +219,8 @@ public class MapApp extends Application
 		       .rotateControl(false)
 		       .scaleControl(false)
 		       .streetViewControl(false)
-		       .zoom(14)
+		       //.zoom(14)
+		       .zoom(9)
 		       .zoomControl(true);
 
 		// create map;
@@ -338,6 +339,8 @@ public class MapApp extends Application
       HBox showHideBox = new HBox();
       showHideBox.getChildren().add(showButton);
       showHideBox.getChildren().add(hideButton);
+      //reset
+      showHideBox.getChildren().add(resetButton);
       showHideBox.setSpacing(2*MARGIN_VAL);
 
       v.getChildren().add(fetchBox);

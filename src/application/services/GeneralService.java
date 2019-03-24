@@ -99,6 +99,7 @@ public class GeneralService {
     
     public float boundsSize() {
     	float[] bounds = getBoundsArray();
+    	System.out.println("Bound size: " + " " + bounds[0] + " " + bounds[2] + " " + bounds[1] + " " +bounds[3] );
     	return (bounds[2] - bounds[0]) * (bounds[3] - bounds[1]);
     }
     
