@@ -205,6 +205,8 @@ public class MapApp extends Application
 	public void mapInitialized() {
 
 		LatLong center = new LatLong(18.2147259,-77.4486513);
+		//LatLong center = new LatLong(32.8810, -117.2380);
+
 
 		// set map options
 		MapOptions options = new MapOptions();

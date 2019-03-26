@@ -1,5 +1,6 @@
 package application.services;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import gmapsfx.javascript.object.LatLong;
 import gmapsfx.javascript.object.LatLongBounds;
 import gmapsfx.javascript.object.MVCArray;
 import gmapsfx.shapes.Polyline;
+import gmapsfx.shapes.PolylineOptions;
 import javafx.scene.control.Button;
 import roadgraph.PathObject;
 
@@ -44,6 +46,7 @@ public class RouteService {
 	private SelectManager selectManager;
     private MarkerManager markerManager;
     private Polyline routeLine;
+    private String color;
     private RouteVisualization rv;
 
 	public RouteService(GoogleMapView mapComponent, 
@@ -64,12 +67,16 @@ public class RouteService {
 	 * Displays route on Google Map
 	 * @return returns false if route fails to display
 	 */
-	private boolean displayRoute(List<LatLong> route) {
-
+	private boolean displayRoute(List<LatLong> route, String color) {
+		
+		
+		PolylineOptions options = new PolylineOptions();
+		options.strokeColor(color);
         if(routeLine != null) {
         	removeRouteLine();
         }
-		routeLine = new Polyline();
+		//routeLine = new Polyline();
+        routeLine = new Polyline(options);
 		MVCArray path = new MVCArray();
 		LatLongBounds bounds = new LatLongBounds();
 		for(LatLong point : route)  {
@@ -104,6 +111,7 @@ public class RouteService {
     }
 
     public void reset() {
+    	markerManager.clearMarkers();
         removeRouteLine();
     }
 
@@ -158,6 +166,7 @@ public class RouteService {
                     				markerManager.getDataSet().getGraph().bfs(start, 
                     														  stop, 
                     														  nodeAccepter);
+                			color = "red";
             			}
             			else if (toggle == RouteController.DIJ) {
             				
@@ -165,6 +174,7 @@ public class RouteService {
                     				markerManager.getDataSet().getGraph().dijkstra(start, 
                     															   stop, 
                     															   nodeAccepter);
+                			color = "green";
             			}
             			else {
             				
@@ -173,6 +183,7 @@ public class RouteService {
                     															      stop, 
                     															      nodeAccepter,
                     															      new HashMap<Double,HashMap<Double,Integer>>());
+            				color = "blue";
             			}
             			
             			geography.GeographicPoint hop;
@@ -205,6 +216,7 @@ public class RouteService {
             																		  stops, 
             																		  nodeAccepter, 
             																		  new HashMap<Double,HashMap<Double,Integer>>());
+            			color = "purple";
             		}
             		else {
             			
@@ -212,6 +224,7 @@ public class RouteService {
                 			markerManager.getDataSet().getGraph().twoOptShortestCycle(start, 
                 																	  stops, 
                 																	  new HashMap<Double,HashMap<Double,Integer>>());
+            			color = "yellow";
             		}
             		
         			path.add(start);
@@ -261,7 +274,7 @@ public class RouteService {
     			
         		selectManager.setRouteInfo(dispDistance, dispTime);
                 markerManager.setSelectMode(false);
-                return displayRoute(mapPath);
+                return displayRoute(mapPath, color);
     		}
 
     		return false;

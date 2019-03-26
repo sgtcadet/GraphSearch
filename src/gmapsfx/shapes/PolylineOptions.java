@@ -27,6 +27,7 @@ public class PolylineOptions extends MapShapeOptions<PolylineOptions> {
     // icons Array.<IconSequence> The icons to be rendered along the polyline.
     
     private MVCArray path;
+    private String strokeColor;
     
     public PolylineOptions() {
     }
@@ -36,7 +37,14 @@ public class PolylineOptions extends MapShapeOptions<PolylineOptions> {
         this.path = path;
         return this;
     }
-
+    
+    @Override
+    public PolylineOptions strokeColor(String strokeColor) {
+    	setProperty("strokeColor", strokeColor);
+        this.strokeColor = strokeColor;
+        return getMe();
+    }
+    
     @Override
     protected PolylineOptions getMe() {
         return this;

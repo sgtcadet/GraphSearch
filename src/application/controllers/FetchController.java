@@ -122,7 +122,7 @@ public class FetchController {
 
     		// check for valid file name ___.map or mapfiles/___.map
     		if((generalService.checkDataFileName(fName)) != null) {
-    			if (!generalService.checkBoundsSize(20)) {
+    			if (!generalService.checkBoundsSize(2000)) {
     			//if (!generalService.checkBoundsSize(.1)) {
     				Alert alert = new Alert(AlertType.ERROR);
         			alert.setTitle("Size Error");
