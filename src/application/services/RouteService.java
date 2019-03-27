@@ -46,6 +46,7 @@ public class RouteService {
 	private SelectManager selectManager;
     private MarkerManager markerManager;
     private Polyline routeLine;
+    private Polyline routeLines[];
     private String color;
     private RouteVisualization rv;
 
@@ -72,9 +73,11 @@ public class RouteService {
 		
 		PolylineOptions options = new PolylineOptions();
 		options.strokeColor(color);
-        if(routeLine != null) {
+        /*
+         * if(routeLine != null) {
         	removeRouteLine();
         }
+        */
 		//routeLine = new Polyline();
         routeLine = new Polyline(options);
 		MVCArray path = new MVCArray();
@@ -84,8 +87,8 @@ public class RouteService {
             bounds = bounds.extend(point);
 		}
 		routeLine.setPath(path);
-
 		map.addMapShape(routeLine);
+		//map.addMapShape(routeLines);
 
 		//System.out.println(bounds.getNorthEast());
 		//EXCEPTION getBounds() messed up??
@@ -100,7 +103,7 @@ public class RouteService {
 
     public void hideRoute() {
     	if(routeLine != null) {
-        	map.removeMapShape(routeLine);
+        	//map.removeMapShape(routeLine);
         	if(markerManager.getVisualization() != null) {
         		markerManager.clearVisualization();
         	}
@@ -111,8 +114,11 @@ public class RouteService {
     }
 
     public void reset() {
-    	markerManager.clearMarkers();
-        removeRouteLine();
+    	//markerManager.restoreMarkers();
+    	//routeLine = null;
+//    	markerManager.clearMarkers();
+//    	markerManager.restoreMarkers();
+//      removeRouteLine();
     }
 
     public boolean isRouteDisplayed() {
@@ -125,7 +131,7 @@ public class RouteService {
         	if(markerManager.getVisualization() != null) {
         		markerManager.clearVisualization();
         	}
-
+        	
         	if(toggle == RouteController.DIJ || toggle == RouteController.A_STAR ||
         	   toggle == RouteController.BFS || toggle == RouteController.GREEDYTSP ||
         	   toggle == RouteController._GREEDY2OPTTSP) {
@@ -224,7 +230,7 @@ public class RouteService {
                 			markerManager.getDataSet().getGraph().twoOptShortestCycle(start, 
                 																	  stops, 
                 																	  new HashMap<Double,HashMap<Double,Integer>>());
-            			color = "yellow";
+            			color = "orange";
             		}
             		
         			path.add(start);
@@ -347,6 +353,12 @@ public class RouteService {
         if(routeLine != null) {
     		map.removeMapShape(routeLine);
         }
+	}
+	
+	private void removeRouteLines() {
+		for( Polyline route : routeLines) {
+			map.removeMapShape(route);
+		}
 	}
 
 //    private void setMarkerManager(MarkerManager manager) {

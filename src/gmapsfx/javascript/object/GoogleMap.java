@@ -147,6 +147,11 @@ public class GoogleMap extends JavascriptObject {
     public void addMapShape(MapShape shape) {
         shape.setMap(this);
     }
+//    public void addMapShape(MapShape shapes[]) {
+//    	for(MapShape shape: shapes) {
+//    		shape.setMap(this);
+//        }
+//    }
 
     public void removeMapShape(MapShape shape) {
         shape.setMap(null);

@@ -28,6 +28,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.web.*;
@@ -390,19 +391,24 @@ public class MapApp extends Application
 
 	  // Use Dijkstra as default
 	  RadioButton rbD = new RadioButton("Dijkstra");
+	  rbD.setTextFill(Paint.valueOf("green"));
 	  rbD.setUserData("Dijkstra");
 	  rbD.setSelected(true);
 
 	  RadioButton rbA = new RadioButton("A*");
+	  rbA.setTextFill(Paint.valueOf("blue"));
 	  rbA.setUserData("A*");
 
 	  RadioButton rbB = new RadioButton("BFS");
+	  rbB.setTextFill(Paint.valueOf("red"));
 	  rbB.setUserData("BFS");
 	  
 	  RadioButton rbGreedyTSP = new RadioButton("GreedyTSP");
+	  rbGreedyTSP.setTextFill(Paint.valueOf("purple"));
 	  rbGreedyTSP.setUserData("GreedyTSP");
 	  
 	  RadioButton rbGreedy2OptTSP = new RadioButton("Greedy2OptTSP");
+	  rbGreedy2OptTSP.setTextFill(Paint.valueOf("orange"));
 	  rbGreedy2OptTSP.setUserData("Greedy2OptTSP");
 	  
 
