@@ -394,6 +394,11 @@ public class MapApp extends Application
 	  rbD.setTextFill(Paint.valueOf("green"));
 	  rbD.setUserData("Dijkstra");
 	  rbD.setSelected(true);
+	  
+	  RadioButton rbDfs = new RadioButton("DFS");
+	  rbDfs.setTextFill(Paint.valueOf("brown"));
+	  rbDfs.setUserData("DFS");
+	  
 
 	  RadioButton rbA = new RadioButton("A*");
 	  rbA.setTextFill(Paint.valueOf("blue"));
@@ -413,11 +418,12 @@ public class MapApp extends Application
 	  
 
 	  rbB.setToggleGroup(group);
+	  rbDfs.setToggleGroup(group);
 	  rbD.setToggleGroup(group);
 	  rbA.setToggleGroup(group);
 	  rbGreedyTSP.setToggleGroup(group);
 	  rbGreedy2OptTSP.setToggleGroup(group);
-	  return new LinkedList<RadioButton>(Arrays.asList(rbB, rbD, rbA, 
+	  return new LinkedList<RadioButton>(Arrays.asList(rbDfs,rbB, rbD, rbA, 
 			  										   rbGreedyTSP, 
 			  										   rbGreedy2OptTSP) );
 	}

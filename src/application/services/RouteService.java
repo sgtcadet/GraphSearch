@@ -134,7 +134,7 @@ public class RouteService {
         	
         	if(toggle == RouteController.DIJ || toggle == RouteController.A_STAR ||
         	   toggle == RouteController.BFS || toggle == RouteController.GREEDYTSP ||
-        	   toggle == RouteController._GREEDY2OPTTSP) {
+        	   toggle == RouteController.DFS || toggle == RouteController._GREEDY2OPTTSP) {
         		
         		markerManager.initVisualization();
             	Consumer<geography.GeographicPoint> nodeAccepter = 
@@ -151,6 +151,7 @@ public class RouteService {
             	
             	if (toggle == RouteController.BFS ||
             		toggle == RouteController.DIJ ||
+            		toggle == RouteController.DFS ||
             		toggle == RouteController.A_STAR) {
             		
                 	PathObject servicePath;
@@ -181,6 +182,14 @@ public class RouteService {
                     															   stop, 
                     															   nodeAccepter);
                 			color = "green";
+            			}
+						else if (toggle == RouteController.DFS) {
+						            				
+						                			servicePath = 
+						                    				markerManager.getDataSet().getGraph().dfs(start, 
+						                    															   stop, 
+						                    															   nodeAccepter);
+						                			color = "brown";
             			}
             			else {
             				

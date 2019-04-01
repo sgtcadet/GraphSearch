@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.Stack;
 import java.util.function.Consumer;
 
 import geography.GeographicPoint;
@@ -250,6 +251,85 @@ public class MapGraph {
 		
 		return null;
 	}
+	
+	
+	/** Find the path from start to goal using Depth first Search
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @return The shortest (unweighted) path from start to goal (including both start and goal).
+	 */
+	public PathObject dfs(GeographicPoint start, GeographicPoint goal) {
+		// Dummy variable for calling the search algorithms
+        Consumer<GeographicPoint> temp = (x) -> {};
+        return dfs(start, goal, temp);
+	}
+	
+	/** Find the path from start to goal using Depth first Search
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @param nodeSearched A hook for visualization.  See assignment instructions for how to use it.
+	 * @return The shortest (unweighted) path from start to goal (including both start and goal).
+	 */
+	public PathObject dfs(GeographicPoint start, 
+			  GeographicPoint goal,
+	   	      Consumer<GeographicPoint> nodeSearched) {	
+		// if the start or goal do not exist in the graph, return null
+		if ( (graph.get(start.x) == null) ||
+			  (graph.get(start.x).get(start.y) == null) ) {
+		return null;
+		}
+		else if ( (graph.get(goal.x) == null) ||
+			  (graph.get(goal.x).get(goal.y) == null) ) {
+		return null;
+		}
+		
+		// assign the start and goal nodes
+		MapIntersection startNode = graph.get(start.x).get(start.y);
+		MapIntersection goalNode = graph.get(goal.x).get(goal.y);
+		
+		// initialize or declare data structures for: nodes to process, 
+		// nodes processed, processed node parents, current node, 
+		// current neighbors, roads taken, and shortest path
+		//ArrayDeque<MapIntersection> toProcess = new ArrayDeque<MapIntersection>();
+		Stack<MapIntersection> toProcess = new Stack<MapIntersection>();
+		HashSet<MapIntersection> visited = new HashSet<MapIntersection>(numVertices*2);
+		HashMap<MapIntersection,MapEdge> roadMap = 
+			new HashMap<MapIntersection,MapEdge>(numVertices*2);
+		MapIntersection currentNode;
+		List<MapEdge> currentNeighbors;
+		
+		// keep track of parents while doing BFS
+		//toProcess.add(startNode);
+		toProcess.push(startNode);
+		visited.add(startNode);
+		while (!toProcess.isEmpty()) {
+		
+		currentNode = toProcess.pop();
+		nodeSearched.accept(currentNode);
+		
+		if (currentNode.equals(goalNode)) {
+			// call the helper method to return shortest path
+			return codifyPath(startNode, goalNode, roadMap);
+		}
+			
+		currentNeighbors = currentNode.getNeighbors();
+		
+		for (MapEdge neighbor : currentNeighbors) {
+			
+			if (!visited.contains(neighbor.getToIntersection())){
+				
+				visited.add(neighbor.getToIntersection());
+				//toProcess.add(neighbor.getToIntersection());
+				toProcess.push(neighbor.getToIntersection());
+				roadMap.put(neighbor.getToIntersection(), neighbor);
+			}
+		}
+		}
+		
+		return null;
+		}
 	
 	/** Codify the path from start to goal using "parents" of each node on
 	 * a previously found path from goal to start.
@@ -1135,6 +1215,7 @@ public class MapGraph {
 	}
 	
 	public static void main(String[] args) {
+	
 		System.out.print("Making a new map...");
 		MapGraph theMap = new MapGraph();
 		System.out.print("DONE. \nLoading the map...");
@@ -1143,18 +1224,18 @@ public class MapGraph {
 		
 		// You can use this method for testing.  
 		
-		/* Use this code in Week 3 End of Week Quiz
-		MapGraph theMap = new MapGraph();
-		System.out.print("DONE. \nLoading the map...");
-		GraphLoader.loadRoadMap("data/maps/utc.map", theMap);
-		System.out.println("DONE.");
+		//Use this code in Week 3 End of Week Quiz
+		//MapGraph theMap = new MapGraph();
+		//System.out.print("DONE. \nLoading the map...");
+		//GraphLoader.loadRoadMap("data/maps/utc.map", theMap);
+		//System.out.println("DONE.");
 
-		GeographicPoint start = new GeographicPoint(32.8648772, -117.2254046);
-		GeographicPoint end = new GeographicPoint(32.8660691, -117.217393);
+		//GeographicPoint start = new GeographicPoint(32.8648772, -117.2254046);
+		//GeographicPoint end = new GeographicPoint(32.8660691, -117.217393);
 		
-		List<GeographicPoint> route = theMap.dijkstra(start,end);
-		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
-		*/
+		//List<GeographicPoint> route = theMap.dijkstra(start,end);
+		//List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
+		
 	}
 	
 }

@@ -45,6 +45,7 @@ public class RouteController {
 	public static final int START = 1;
 	public static final int DESTINATION = 2;
 	public static final int MAXSTOPS = 7;
+	public static final int DFS = 6;
 	
     private int selectedToggle = DIJ;
 
@@ -183,6 +184,9 @@ public class RouteController {
     	group.selectedToggleProperty().addListener( li -> {
             if(group.getSelectedToggle().getUserData().equals("Dijkstra")) {
             	selectedToggle = DIJ;
+            }
+            else if(group.getSelectedToggle().getUserData().equals("DFS")) {
+            	selectedToggle = DFS;
             }
             else if(group.getSelectedToggle().getUserData().equals("A*")) {
             	selectedToggle = A_STAR;
